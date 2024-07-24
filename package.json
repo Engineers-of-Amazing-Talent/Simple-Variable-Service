@@ -1,0 +1,26 @@
+{
+  "name": "simple-variable-service",
+  "version": "1.0.0",
+  "description": "This service offers users easy remote access to JSON like data that can be accessed via a simple web request. Users can create simple values like strings, integers, floats, booleans, and lists.  An authenticated user is able to freely Create, Read, Update, and Remove as many variables as they please.  If a user wants to be able to share their variables they can either select specific users to have specific capabilities towards one or more variables, or make their variable publicly accessible to anyone.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/index.ts",
+    "build": "npx tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "typescript": "^5.5.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.12",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2"
+  }
+}
