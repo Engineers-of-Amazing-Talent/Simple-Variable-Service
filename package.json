@@ -4,7 +4,8 @@
   "description": "This service offers users easy remote access to JSON like data that can be accessed via a simple web request. Users can create simple values like strings, integers, floats, booleans, and lists.  An authenticated user is able to freely Create, Read, Update, and Remove as many variables as they please.  If a user wants to be able to share their variables they can either select specific users to have specific capabilities towards one or more variables, or make their variable publicly accessible to anyone.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --coverage --verbose",
+    "test:watch": "jest --watchAll",
     "dev": "nodemon src/index.ts",
     "build": "npx tsc",
     "start": "node dist/index.js"
@@ -19,8 +20,11 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.14.12",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.4",
+    "ts-jest": "^29.2.3",
     "ts-node": "^10.9.2"
   }
 }
