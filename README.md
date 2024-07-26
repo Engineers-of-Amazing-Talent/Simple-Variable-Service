@@ -4,6 +4,35 @@ This service offers users easy remote access to JSON like data that can be acces
 
 ## Installation
 
+SVS uses docker to compose the Application running Node v18.X, as well as a PostgreSQL instance v.13.  You will need NodeJS and Docker installed in order to build and run the application.
+
+1. Clone Repository.
+
+    ```bash
+    git clone https://github.com/Engineers-of-Amazing-Talent/Simple-Variable-Service.git
+    ```
+
+1. Configure your environment variables.
+
+    ```bash
+    POSTGRES_USER=myuser
+    POSTGRES_PASSWORD=mypassword
+    POSTGRES_DB=mydatabase
+    POSTGRES_HOST=db
+    NODE_ENV=development
+    APP_PORT=3000
+    DB_PORT=5432
+    ```
+
+1. Install with Docker Compose.
+
+    ```bash
+    cd Simple-Variable-Service
+    docker-compose up --build
+    ```
+
 ## Usage
+
+Requests can be made to the configured PORT specified in your environment variables.
 
 ## Contributors

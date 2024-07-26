@@ -1,4 +1,4 @@
-import { Variable } from '../model';
+import { IRepository, Variable } from '../model';
 
 describe('Variable Repository', () => {
   test('Should be able to create a variable object', async () => {
