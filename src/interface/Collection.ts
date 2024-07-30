@@ -3,7 +3,7 @@
  * Interface for performing CRUD for resources
  */
 
-export class ICollection {
+export class Collection {
 
   read() {}
 
