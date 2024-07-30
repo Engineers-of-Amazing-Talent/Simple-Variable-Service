@@ -73,4 +73,27 @@ describe('Variable Repository', () => {
     expect(listItem.listId).toEqual(listObject.id);
     expect(listItem.id).toBeTruthy();
   });
+
+  test('Should be able to query a List Variable and return all variables associated with the list', async () => {
+      const Variable = repository.getModel<VariableInstance>('Variable');
+      const ListItem = repository.getModel<ListItemInstance>('ListItem');
+      Variable.belongsToMany(Variable, { through: ListItem, as: 'ListVariable', foreignKey: 'listId', otherKey: 'resourceId' });
+
+      const itemOne = await Variable.create({key: 'one', value: 'TEST_VALUE_ONE', type: 'STRING'});
+      const itemTwo = await Variable.create({key: 'two', value: 'TEST_VALUE_TWO', type: 'STRING'});
+      const list = await Variable.create({ key: 'TEST_VALUES', type: 'LIST'});
+      await ListItem.create({ listId: list.id, resourceId: itemOne.id });
+      await ListItem.create({ listId: list.id, resourceId: itemTwo.id });
+
+      const listRecord = await Variable.findByPk(list.id, {
+        include: [
+          { model: Variable, as: 'ListVariable' }
+        ]
+      });
+      expect(listRecord?.key).toEqual('TEST_VALUES');
+      expect(listRecord?.ListVariable[0].key).toEqual('one');
+      expect(listRecord?.ListVariable[1].key).toEqual('two');
+      expect(listRecord?.ListVariable[0].value).toEqual('TEST_VALUE_ONE');
+      expect(listRecord?.ListVariable[1].value).toEqual('TEST_VALUE_TWO');
+  });
 });

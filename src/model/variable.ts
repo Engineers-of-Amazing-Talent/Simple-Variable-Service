@@ -11,6 +11,7 @@ export interface VariableCreationAttributes extends Optional<VariableAttributes,
 
 export interface VariableInstance extends Model<VariableAttributes, VariableCreationAttributes>, VariableAttributes {
   id: string;
+  ListVariable: VariableInstance[],
 }
 
 const allowedTypes = ['STRING', 'BOOLEAN', 'INTEGER', 'FLOAT', 'LIST'];
