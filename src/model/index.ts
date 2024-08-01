@@ -8,5 +8,8 @@ const repository = new Repository();
 repository.addModel(variableSchema);
 repository.addModel(listItemSchema);
 
+// inputs -> list of Schema to be joined via join, join. JoinOptions
+// repository.createJoinAssociation(variableSchema, variableSchema, {through, as, })
+
 export * from './Repository';
 export default repository;

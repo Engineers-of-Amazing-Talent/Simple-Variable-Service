@@ -5,6 +5,8 @@ export type Schema = {
   attributes: ModelAttributes
 }
 
+export type Association = {}
+
 export type ConnectionParams = {
   url: string;
   options?: object
@@ -12,16 +14,18 @@ export type ConnectionParams = {
 
 export class Repository {
   db: Sequelize | null;
-  models: (Schema|string)[];
+  schemas: Schema[];
+  associations: Association[];
 
   constructor() {
     this.db = null;
-    this.models = [];
+    this.schemas = [];
+    this.associations = [];
   }
 
   connect(params: ConnectionParams) {
     this.db = new Sequelize(params.url, params.options);
-    this.models.forEach(model => {
+    this.schemas.forEach(model => {
       if (typeof model !== 'string') {
         this.addModel(model);
       }
@@ -37,7 +41,7 @@ export class Repository {
 
   addModel(schema: Schema): void {
     if (!this.db) {
-      this.models.push(schema);
+      this.schemas.push(schema);
     } else {
       this.db.define(schema.name, schema.attributes);
     }
@@ -55,4 +59,6 @@ export class Repository {
 
     return model;
   }
+
+  createJoinAssociations() {}
 }

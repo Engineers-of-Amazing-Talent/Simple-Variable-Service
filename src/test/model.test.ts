@@ -38,6 +38,17 @@ describe('Variable Repository', () => {
 
   });
 
+  test('Should throw an error when a Variable lacks a value and not a list type', async () => {
+    const Variable = repository.getModel<VariableInstance>('Variable');
+
+    await expect(
+      Variable.create({
+        type: 'STRING',
+        key: 'NO_VALUE'
+      })
+    ).rejects.toThrow();
+  });
+
   test('Should be able to create a List Type Variables with a null value', async () => {
     const Variable = repository.getModel<VariableInstance>('Variable');
 
@@ -77,15 +88,16 @@ describe('Variable Repository', () => {
   test('Should be able to query a List Variable and return all variables associated with the list', async () => {
       const Variable = repository.getModel<VariableInstance>('Variable');
       const ListItem = repository.getModel<ListItemInstance>('ListItem');
+      // repository.createJoinAssociation(Variable, Variable, { through: ListItem, as: 'ListVariable', foreignKey: 'listId', otherKey: 'resourceId' }) // should be able to pass through Model or Schema.
       Variable.belongsToMany(Variable, { through: ListItem, as: 'ListVariable', foreignKey: 'listId', otherKey: 'resourceId' });
 
       const itemOne = await Variable.create({key: 'one', value: 'TEST_VALUE_ONE', type: 'STRING'});
       const itemTwo = await Variable.create({key: 'two', value: 'TEST_VALUE_TWO', type: 'STRING'});
-      const list = await Variable.create({ key: 'TEST_VALUES', type: 'LIST'});
-      await ListItem.create({ listId: list.id, resourceId: itemOne.id });
-      await ListItem.create({ listId: list.id, resourceId: itemTwo.id });
+      const listOne = await Variable.create({ key: 'TEST_VALUES', type: 'LIST'});
+      await ListItem.create({ listId: listOne.id, resourceId: itemOne.id });
+      await ListItem.create({ listId: listOne.id, resourceId: itemTwo.id });
 
-      const listRecord = await Variable.findByPk(list.id, {
+      const listRecord = await Variable.findByPk(listOne.id, {
         include: [
           { model: Variable, as: 'ListVariable' }
         ]

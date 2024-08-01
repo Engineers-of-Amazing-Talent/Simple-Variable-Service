@@ -44,7 +44,7 @@ export const variableSchema: Schema = {
       allowNull: true,
       validate: {
         isNullable(value: unknown) {
-          if (this.type !== 'LIST' && value === null) {
+          if (this.type !== 'LIST' && !value) {
             throw new Error('Value can only be null if Type is set to List');
           }
         }
