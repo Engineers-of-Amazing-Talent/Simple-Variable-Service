@@ -5,7 +5,17 @@ export type Schema = {
   attributes: ModelAttributes
 }
 
-export type Association = {}
+export interface AssociationParams {
+  through: Schema;
+  as: string;
+  foreignKey: string,
+  otherKey: string,
+}
+
+export interface Association extends AssociationParams {
+  to: Schema,
+  from: Schema,
+}
 
 export type ConnectionParams = {
   url: string;
@@ -13,9 +23,9 @@ export type ConnectionParams = {
 }
 
 export class Repository {
-  db: Sequelize | null;
-  schemas: Schema[];
-  associations: Association[];
+  private db: Sequelize | null;
+  public schemas: Schema[];
+  public associations: Association[];
 
   constructor() {
     this.db = null;
@@ -25,11 +35,30 @@ export class Repository {
 
   connect(params: ConnectionParams) {
     this.db = new Sequelize(params.url, params.options);
-    this.schemas.forEach(model => {
-      if (typeof model !== 'string') {
-        this.addModel(model);
+    this.schemas.forEach(schema => {
+      if (typeof schema !== 'string') {
+        this.createModel(schema);
       }
     });
+    this.associations.forEach(association => {
+      this.createManyToMany(association);
+    });
+  }
+
+  async initialize() {
+    if (this.db) {
+      await this.db.sync();
+    } else {
+      throw new Error('DB initialization error: no database instance');
+    }
+  }
+
+  async terminate() {
+    if (this.db) {
+      await this.db.drop();
+    } else {
+      throw new Error('DB initialization error: no database instance');
+    }
   }
 
   close() {
@@ -39,12 +68,25 @@ export class Repository {
     }
   }
 
-  addModel(schema: Schema): void {
-    if (!this.db) {
-      this.schemas.push(schema);
-    } else {
-      this.db.define(schema.name, schema.attributes);
-    }
+  addSchema(schema: Schema): void {
+    this.schemas.push(schema);
+  }
+
+  createModel(modelSchema: Schema): void {
+    this.db?.define(modelSchema.name, modelSchema.attributes);
+  }
+
+  createManyToMany(association: Association) {
+    const modelTo = this.getModel(association.to.name);
+    const modelFrom = this.getModel(association.from.name);
+    const modelThrough = this.getModel(association.through.name);
+
+    modelTo.belongsToMany(modelFrom, {
+      through: modelThrough,
+      as: association.as,
+      foreignKey: association.foreignKey,
+      otherKey: association.otherKey
+    });
   }
 
   getModel<T extends Model>(modelName: string): ModelStatic<T> {
@@ -60,5 +102,11 @@ export class Repository {
     return model;
   }
 
-  createJoinAssociations() {}
+  addJoinAssociation(schemaFrom: Schema, schemaTo: Schema, associationParams: AssociationParams): void {
+    this.associations.push({
+      to: schemaTo,
+      from: schemaFrom,
+      ...associationParams
+    });
+  }
 }
