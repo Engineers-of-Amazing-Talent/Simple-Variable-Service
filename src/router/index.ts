@@ -1,1 +1,1 @@
-export * from './';
+export * as variableRouter from './variable';
