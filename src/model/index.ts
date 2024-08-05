@@ -5,8 +5,14 @@ import { variableSchema } from './variable';
 import { listItemSchema } from './listItem';
 
 const repository = new Repository();
-repository.addModel(variableSchema);
-repository.addModel(listItemSchema);
+repository.addSchema(variableSchema);
+repository.addSchema(listItemSchema);
+repository.addJoinAssociation(variableSchema, variableSchema, {
+  through: listItemSchema,
+  as: 'ListVariable',
+  foreignKey: 'listId',
+  otherKey: 'resourceId'
+});
 
 export * from './Repository';
 export default repository;
