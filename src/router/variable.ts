@@ -5,25 +5,42 @@ router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
 async function readVariables(request: Request, response: Response, next: NextFunction) {
-  //const Variable = await request.collection.read('Variable');
-  response.send('/GET, Variable');
+  try {
+    if (request.collection) {
+      const { resourceId } = request.params;
+      const record = await request.collection.read('Variable', { resourceId });
+      response.status(200).json(record);
+    } else {
+      next({ message: 'No Collection interface' });
+    }
+  } catch (e) {
+    next({message: 'Variable Router Error: unable to read variable record', error: e });
+  }
 }
 
 async function createVariable(request: Request, response: Response, next: NextFunction) {
   try {
-    const variableRecord = await request.collection.write('Variable', {
-      type: request.body.type,
-      key: request.body.key,
-      value: request.body.value
-    });
-    response.status(201).json({ resourceId: variableRecord.id });
+    if (request.collection) {
+      const variableRecord = await request.collection.write('Variable', {
+        type: request.body.type,
+        key: request.body.key,
+        value: request.body.value
+      });
+      response.status(201).json({ resourceId: variableRecord.id });
+    } else {
+      next({ message: 'No Collection interface' });
+    }
   } catch (e) {
     console.log(e);
     next({ message: 'Variable Router Error: unable to create variable record' , error: e });
   }
 }
-async function updateVariable(request: Request, response: Response, next: NextFunction) {}
-async function deleteVariable(request: Request, response: Response, next: NextFunction) { }
+async function updateVariable(request: Request, response: Response, next: NextFunction) {
+  response.send('UPDATE IN_PROGRESS');
+}
+async function deleteVariable(request: Request, response: Response, next: NextFunction) {
+  response.send('DELETE IN_PROGRESS');
+}
 
 router.post('/variable', createVariable);
 router.get('/variable/:resourceId', readVariables);

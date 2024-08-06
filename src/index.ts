@@ -22,9 +22,12 @@ repository.connect({
   url: `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${DB_PORT}/${POSTGRES_DB}`,
   options: {}
 })
-.then(repository.initialize)
+.then(() => repository.initialize())
 .then(() => {
   app.listen(APP_PORT, () => {
     console.log('App is running - HTTP(S) :: ', APP_PORT);
   });
+})
+.catch(e => {
+  console.error('Failed to initialize repository:', e);
 });

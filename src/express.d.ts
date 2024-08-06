@@ -4,7 +4,7 @@ import { Collection } from './interface';
 declare global {
   namespace Express {
     interface Request {
-      collection: Collection;
+      collection?: Collection;
     }
   }
 }

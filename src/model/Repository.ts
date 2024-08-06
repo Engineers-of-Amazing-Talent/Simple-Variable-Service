@@ -34,15 +34,20 @@ export class Repository {
   }
 
   async connect(params: ConnectionParams): Promise<void> {
-    this.db = new Sequelize(params.url, params.options);
-    this.schemas.forEach(schema => {
-      if (typeof schema !== 'string') {
-        this.createModel(schema);
-      }
-    });
-    this.associations.forEach(association => {
-      this.createManyToMany(association);
-    });
+    try {
+      this.db = new Sequelize(params.url, params.options);
+      this.schemas.forEach(schema => {
+        if (typeof schema !== 'string') {
+          this.createModel(schema);
+        }
+      });
+      this.associations.forEach(association => {
+        this.createManyToMany(association);
+      });
+    } catch(e) {
+      console.error(e);
+      throw new Error('Repository Connection Error');
+    }
   }
 
   async initialize() {
