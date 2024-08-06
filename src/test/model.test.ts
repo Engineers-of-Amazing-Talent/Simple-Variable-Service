@@ -2,19 +2,8 @@ import { VariableInstance } from '../model/variable';
 import { ListItemInstance } from '../model/listItem';
 import repository from '../model';
 
-beforeAll(async () => {
-  await repository.connect({ url:'sqlite:memory:', options: {logging: false} });
-  await repository.initialize();
-});
-beforeEach(async () => {
-  await repository.initialize();
-});
 afterEach(async () => {
   await repository.clean();
-})
-afterAll(async () => {
-  await repository.terminate();
-  repository.close();
 });
 
 describe('Variable Repository', () => {

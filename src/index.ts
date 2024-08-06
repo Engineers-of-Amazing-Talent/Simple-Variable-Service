@@ -1,6 +1,7 @@
-import express, { Express, Request, Response, NextFunction } from 'express';
+import express, { Express } from 'express';
 import repository from './model';
-import { Collection } from './interface';
+import useCollection from './router/middleware/useCollection';
+import { variableRouter } from './router';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -14,18 +15,8 @@ const {
   POSTGRES_DB
 } = process.env;
 
-// configure the collection interface with the repository
-const collection = new Collection(repository);
-
-// TODO: implement model / router / interfaces 
-app.use((request: Request, response: Response, next: NextFunction) => {
-  request.collection = collection;
-  next();
-});
-
-app.get('/', (req: Request, res: Response, next: NextFunction ) => {
-  res.send('Variable Router Response');
-});
+app.use(useCollection);
+app.use(variableRouter);
 
 repository.connect({
   url: `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${DB_PORT}/${POSTGRES_DB}`,

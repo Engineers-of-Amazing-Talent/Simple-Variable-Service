@@ -6,18 +6,12 @@ let VariableModel: ModelStatic<VariableInstance> | null = null;
 let variableInstance: VariableInstance | null = null;
 
 beforeAll(async () => {
-  await repository.connect({ url: 'sqlite:memory', options: {logging: false } });
-  await repository.initialize();
   VariableModel = await repository.getModel<VariableInstance>('Variable');
   variableInstance = await VariableModel.create({
     key: 'TEST_KEY',
     value: 'TEST_VALUE',
     type: 'STRING'
   });
-});
-afterAll(async () => {
-  await repository.terminate();
-  repository.close();
 });
 
 describe('Collection Interface', () => {

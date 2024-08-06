@@ -31,10 +31,15 @@ export class Collection {
   }
 
   async write(modelName: string, values: VariableAttributes | ListItemAttributes): Promise<ModelInstance> {
-    const queryModel = this.repository.getModel<ModelInstance>(modelName);
-    const instance = await queryModel.create(values);
-
-    return instance;
+    try {
+      const queryModel = this.repository.getModel<ModelInstance>(modelName);
+      const instance = await queryModel.create(values);
+  
+      return instance;
+    } catch(e) {
+      console.error(e);
+      throw new Error('Collection Interface: WRITE ERROR');
+    }
   }
 
   update() {}
