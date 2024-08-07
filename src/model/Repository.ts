@@ -33,16 +33,21 @@ export class Repository {
     this.associations = [];
   }
 
-  connect(params: ConnectionParams) {
-    this.db = new Sequelize(params.url, params.options);
-    this.schemas.forEach(schema => {
-      if (typeof schema !== 'string') {
-        this.createModel(schema);
-      }
-    });
-    this.associations.forEach(association => {
-      this.createManyToMany(association);
-    });
+  async connect(params: ConnectionParams): Promise<void> {
+    try {
+      this.db = new Sequelize(params.url, params.options);
+      this.schemas.forEach(schema => {
+        if (typeof schema !== 'string') {
+          this.createModel(schema);
+        }
+      });
+      this.associations.forEach(association => {
+        this.createManyToMany(association);
+      });
+    } catch(e) {
+      console.error(e);
+      throw new Error('Repository Connection Error');
+    }
   }
 
   async initialize() {
@@ -53,11 +58,19 @@ export class Repository {
     }
   }
 
+  async clean() {
+    if (this.db) {
+      await this.db.truncate();
+    } else {
+      throw new Error('DB cleaning error: no database instance');
+    }
+  }
+
   async terminate() {
     if (this.db) {
       await this.db.drop();
     } else {
-      throw new Error('DB initialization error: no database instance');
+      throw new Error('DB termination error: no database instance');
     }
   }
 
@@ -73,6 +86,9 @@ export class Repository {
   }
 
   createModel(modelSchema: Schema): void {
+    if (!this.db) {
+      throw new Error('Create Model Error: db is not initialized');
+    }
     this.db?.define(modelSchema.name, modelSchema.attributes);
   }
 
