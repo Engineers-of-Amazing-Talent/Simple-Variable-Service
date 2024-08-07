@@ -8,8 +8,14 @@ async function readVariables(request: Request, response: Response, next: NextFun
   try {
     if (request.collection) {
       const { resourceId } = request.params;
-      const record = await request.collection.read('Variable', { resourceId });
-      response.status(200).json(record);
+      const query = await request.collection.read('Variable', { resourceId });
+      if (query) {
+        response.status(200).json({
+          data: query.data
+        });
+      } else {
+        response.status(404);
+      }
     } else {
       next({ message: 'No Collection interface' });
     }
@@ -21,12 +27,12 @@ async function readVariables(request: Request, response: Response, next: NextFun
 async function createVariable(request: Request, response: Response, next: NextFunction) {
   try {
     if (request.collection) {
-      const variableRecord = await request.collection.write('Variable', {
+      const query = await request.collection.write('Variable', {
         type: request.body.type,
         key: request.body.key,
         value: request.body.value
       });
-      response.status(201).json({ resourceId: variableRecord.id });
+      response.status(201).json({ resourceId: query.record.id });
     } else {
       next({ message: 'No Collection interface' });
     }

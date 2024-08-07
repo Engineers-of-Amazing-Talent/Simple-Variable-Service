@@ -42,7 +42,6 @@ describe('Service Router', () => {
     const request = supertest(testApp);
     const response = await request.get(`/variable/${variable?.id}`);
     expect(response.status).toEqual(200);
-    expect(response.body.key).toEqual('ROUTER_TEST_KEY');
-    expect(response.body.value).toEqual('ROUTER_TEST_VALUE')
+    expect(response.body.data).toEqual('ROUTER_TEST_VALUE')
   })
 });
