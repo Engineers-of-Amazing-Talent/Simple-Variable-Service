@@ -103,7 +103,7 @@ Description: Create a single new Variable resource.
 
 #### 2. Read a Variable
 
-Endpoint: GET /resources/{id}  
+Endpoint: GET /variable/{id}  
 Description: Retrieves a single resource by its ID.
 
 ##### Request
