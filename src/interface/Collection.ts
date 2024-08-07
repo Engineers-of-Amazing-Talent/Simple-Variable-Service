@@ -1,8 +1,15 @@
 /**
  * Interface for performing CRUD for resources
  */
-import { Repository } from '../model/';
+import { Repository, ModelInstance, VariableAttributes, ListItemAttributes } from '../model/';
+import { IncludeOptions } from 'sequelize';
 
+export interface readOptions {
+  resourceId: string
+  include?: string
+  includeAs?: string
+}
+ 
 export class Collection {
   repository: Repository;
 
@@ -10,9 +17,30 @@ export class Collection {
     this.repository = repository;
   }
 
-  read() {}
+  async read(modelName: string, options: readOptions): Promise<ModelInstance | null> {
+    const queryModel = this.repository.getModel<ModelInstance>(modelName);
+    const queryOptions: IncludeOptions = {};
+    
+    if (options.include && options.includeAs) {
+      const associationModel = this.repository.getModel(options.include);
+      queryOptions.include = [{ model: associationModel, as: options.includeAs}]
+    }
 
-  write() {}
+    const instance = await queryModel.findByPk(options.resourceId, queryOptions);
+    return instance;
+  }
+
+  async write(modelName: string, values: VariableAttributes | ListItemAttributes): Promise<ModelInstance> {
+    try {
+      const queryModel = this.repository.getModel<ModelInstance>(modelName);
+      const instance = await queryModel.create(values);
+  
+      return instance;
+    } catch(e) {
+      console.error(e);
+      throw new Error('Collection Interface: WRITE ERROR');
+    }
+  }
 
   update() {}
 

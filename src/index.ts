@@ -1,16 +1,33 @@
-import express, { Express, Request, Response, NextFunction } from 'express';
+import express, { Express } from 'express';
+import repository from './model';
+import useCollection from './router/middleware/useCollection';
+import { variableRouter } from './router';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const app: Express = express();
-const { APP_PORT } = process.env;
+const {
+  APP_PORT,
+  POSTGRES_USER,
+  POSTGRES_PASSWORD,
+  POSTGRES_HOST,
+  DB_PORT,
+  POSTGRES_DB
+} = process.env;
 
-// TODO: implement model / router / interfaces 
+app.use(useCollection);
+app.use(variableRouter);
 
-app.get('/', (req: Request, res: Response, next: NextFunction ) => {
-  res.send('Variable Router Response');
-});
-
-app.listen(APP_PORT, () => {
-  console.log('App is running - HTTP(S) :: ', APP_PORT);
+repository.connect({
+  url: `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${DB_PORT}/${POSTGRES_DB}`,
+  options: {}
+})
+.then(() => repository.initialize())
+.then(() => {
+  app.listen(APP_PORT, () => {
+    console.log('App is running - HTTP(S) :: ', APP_PORT);
+  });
+})
+.catch(e => {
+  console.error('Failed to initialize repository:', e);
 });
