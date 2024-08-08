@@ -183,7 +183,8 @@ describe('Variable Repository', () => {
 
     const records = await repository.getLinkedInstances('Variable', list1.id, {
       as: 'ListVariable',
-    }); 
+      include: 'Variable'
+    });
     expect(records).toBeTruthy();
     if (records && isVariableInstance(records)) {
       expect(records.key).toEqual('LIST_1');

@@ -112,7 +112,7 @@ describe('Collection Interface', () => {
     }
   });
 
-  xtest('Should be able to create a nested list and read all values in the list', async () => {
+  test('Should be able to create a nested list and read all values in the list', async () => {
     const collection = new Collection(repository);
 
     const valueTwo = await collection.write('Variable', {
@@ -138,9 +138,6 @@ describe('Collection Interface', () => {
         include: 'Variable',
         includeAs: 'ListVariable'
       });
-      if (query?.record && isVariableInstance(query?.record)) {
-        console.log(query?.record.ListVariable);
-      }
 
       if (query) {
         expect(query.data).toMatchObject({

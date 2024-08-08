@@ -25,6 +25,7 @@ export type ConnectionParams = {
 
 export type LinkedQueryParams = {
   as: string;
+  include: string;
 }
 
 export class Repository {
@@ -131,16 +132,21 @@ export class Repository {
     });
   }
 
-  async getLinkedInstances(modelName: string, id: string, params: LinkedQueryParams): Promise<ModelInstance | null> {
+  async getLinkedInstances(modelName: string, id: string, params?: LinkedQueryParams): Promise<ModelInstance | null> {
     const Model = this.getModel<ModelInstance>(modelName);
-    const parent: ModelInstance | null = await Model.findByPk(id, {
-      include: [
-        {
-          model: Model,
-          as: params.as,
-        },
-      ]
-    });
+    let includeOptions = {};
+    if (params) {
+      const IncludeModel = this.getModel<ModelInstance>(params.include);
+      includeOptions = {
+        include: [
+          {
+            model: IncludeModel,
+            as: params.as,
+          },
+        ]
+      }
+    }
+    const parent: ModelInstance | null = await Model.findByPk(id, includeOptions);
     if (!parent) {
       return null;
     }

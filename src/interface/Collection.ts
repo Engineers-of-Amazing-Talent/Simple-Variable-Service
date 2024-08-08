@@ -7,9 +7,9 @@ import {
   isVariableInstance,
   VariableAttributes,
   ListItemAttributes,
-  VariableInstance
+  VariableInstance,
+  LinkedQueryParams
 } from '../model/';
-import { IncludeOptions } from 'sequelize';
 
 export interface readOptions {
   resourceId: string
@@ -74,15 +74,13 @@ export class Collection {
 
   async read(modelName: string, options: readOptions): Promise<QueryResponse | null> {
     try {
-      const queryModel = this.repository.getModel<ModelInstance>(modelName);
-      const queryOptions: IncludeOptions = {};
+      let queryOptions: LinkedQueryParams | undefined;
       
-      if (options.include && options.includeAs) {
-        const associationModel = this.repository.getModel(options.include);
-        queryOptions.include = [{ model: associationModel, as: options.includeAs }];
+      if (options.includeAs && options.include) {
+        queryOptions = { as: options.includeAs, include: options.include };
       }
   
-      const record = await queryModel.findByPk(options.resourceId, queryOptions);
+      const record = await this.repository.getLinkedInstances(modelName, options.resourceId, queryOptions);
       let data = null;
       if (record) {
         if (isVariableInstance(record)) {
