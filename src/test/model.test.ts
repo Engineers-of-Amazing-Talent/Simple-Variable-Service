@@ -163,8 +163,6 @@ describe('Variable Repository', () => {
     ).rejects.toThrow();
     
   });
-
-  // validation
   test('Throws error for Variables of type FLOAT when containing non-numeric values', async () => {
     const Variable = repository.getModel<VariableInstance>('Variable');
 

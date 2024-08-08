@@ -1,6 +1,6 @@
 import { ModelStatic } from 'sequelize';
 import { Collection, QueryResponse } from '../interface';
-import repository, { VariableInstance, isVariableInstance, ListItemInstance, isListItemInstance } from '../model';
+import repository, { VariableInstance, isVariableInstance, ListItemInstance } from '../model';
 
 let VariableModel: ModelStatic<VariableInstance> | null = null;
 let ListItemModel: ModelStatic<ListItemInstance> | null = null;
@@ -110,5 +110,43 @@ describe('Collection Interface', () => {
         expect(response.record.ListVariable).toBeTruthy();
       }
     }
-  })
+  });
+
+  xtest('Should be able to create a nested list and read all values in the list', async () => {
+    const collection = new Collection(repository);
+
+    const valueTwo = await collection.write('Variable', {
+      type: 'BOOLEAN',
+      value: 'True',
+      key: 'LEVEL_TWO_VALUE'
+    });
+    const listTwo = await collection.write('Variable', {
+      type: 'LIST',
+      key: 'LEVEL_TWO'
+    });
+    if (listInstance) {
+      collection.write('ListItem', {
+        listId: listInstance?.id,
+        resourceId: listTwo.record.id
+      });
+      collection.write('ListItem', {
+        listId: listTwo.record.id,
+        resourceId: valueTwo.record.id
+      });
+      const query = await collection.read('Variable', {
+        resourceId: listInstance.id,
+        include: 'Variable',
+        includeAs: 'ListVariable'
+      });
+      console.log(query?.record, query?.data);
+
+      if (query) {
+        expect(query.data).toMatchObject({
+          'LEVEL_TWO': {
+            'LEVEL_TWO_VALUE': true
+          },
+        });
+      }
+    }
+  });
 });

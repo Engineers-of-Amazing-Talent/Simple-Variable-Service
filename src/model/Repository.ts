@@ -33,6 +33,12 @@ export class Repository {
     this.associations = [];
   }
 
+  // TODO: recursive search for list contents
+  static async handleListVariable(model: Model) {
+    // let record  = await queryModel.findByPk(options.resourceId, queryOptions);
+    // if (record.List)
+  }
+
   async connect(params: ConnectionParams): Promise<void> {
     try {
       this.db = new Sequelize(params.url, params.options);

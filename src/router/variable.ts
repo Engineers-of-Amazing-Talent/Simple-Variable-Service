@@ -8,7 +8,7 @@ async function readVariables(request: Request, response: Response, next: NextFun
   try {
     if (request.collection) {
       const { resourceId } = request.params;
-      const query = await request.collection.read('Variable', { resourceId });
+      const query = await request.collection.read('Variable', { resourceId, include: 'Variable', includeAs: 'ListVariable' });
       if (query) {
         response.status(200).json({
           data: query.data

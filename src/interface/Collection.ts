@@ -53,18 +53,26 @@ export class Collection {
   }
 
   static parseList(list: VariableInstance, json: JSONObject): JSONObject {
-    if (list.ListVariable) {
-      for (let child of list.ListVariable) {
-        if (child.value) {
-          json[child.key] = Collection.parseValue(child.type, child.value);
-        }
-        if (child.type === 'LIST') {
-          return Collection.parseList(child, json);
+    const walk = (variable: VariableInstance, next: JSONObject): void => {
+      if (variable.ListVariable) {
+        for (let child of variable.ListVariable) {
+          if (child.value) {
+            json[child.key] = Collection.parseValue(child.type, child.value);
+          }
+          if (child.type === 'LIST') {
+            let newChild = {}
+            next[child.key] = newChild;
+            Collection.parseList(child, newChild);
+          }
         }
       }
     }
+    walk(list, json);
     return json;
   }
+
+  // traverse a list record and continue to query any nested list records found.
+  static async traverseList(record: VariableInstance) {}
 
   async read(modelName: string, options: readOptions): Promise<QueryResponse | null> {
     try {
@@ -86,7 +94,6 @@ export class Collection {
             data = record.value;
           }
         }
-
         return {
           record,
           data
