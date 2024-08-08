@@ -4,7 +4,7 @@ import repository from '../../model';
 
 // configure the collection interface with the repository
 const collection = new Collection(repository);
-export default function useCollection(request: Request, response: Response, next: NextFunction) {
+export function useCollection(request: Request, response: Response, next: NextFunction) {
   request.collection = collection;
   next();
 }
