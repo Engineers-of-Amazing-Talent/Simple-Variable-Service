@@ -2,7 +2,7 @@ import variableRouter from '../router/variable';
 import listItemRouter from '../router/listItem';
 import supertest from 'supertest';
 import testApp from './util/testApp';
-import useCollection from '../router/middleware/useCollection';
+import { useCollection, errorHandler } from '../router';
 import repository, { VariableInstance, ListItemInstance } from '../model';
 
 let variable: VariableInstance | null = null;
@@ -27,6 +27,7 @@ beforeAll(async () => {
   testApp.use(useCollection);
   testApp.use(variableRouter);
   testApp.use(listItemRouter);
+  testApp.use(errorHandler);
 });
 
 describe('Service Router', () => {

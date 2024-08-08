@@ -138,7 +138,9 @@ describe('Collection Interface', () => {
         include: 'Variable',
         includeAs: 'ListVariable'
       });
-      console.log(query?.record, query?.data);
+      if (query?.record && isVariableInstance(query?.record)) {
+        console.log(query?.record.ListVariable);
+      }
 
       if (query) {
         expect(query.data).toMatchObject({

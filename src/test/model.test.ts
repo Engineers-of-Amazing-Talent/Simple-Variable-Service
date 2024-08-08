@@ -1,6 +1,6 @@
 import { VariableInstance } from '../model/variable';
 import { ListItemInstance } from '../model/listItem';
-import repository from '../model';
+import repository, { isVariableInstance } from '../model';
 
 afterEach(async () => {
   await repository.clean();
@@ -123,30 +123,73 @@ describe('Variable Repository', () => {
     const Variable = repository.getModel<VariableInstance>('Variable');
     const ListItem = repository.getModel<ListItemInstance>('ListItem');
 
-    try {
-      const itemOne = await Variable.create({ key: 'first', value: 'TEST_VALUE_ONE', type: 'STRING'});
-      const itemTwo = await Variable.create({ key: 'parent', type: 'LIST' });
-      await ListItem.create({ listId: itemTwo.id, resourceId: itemOne.id });
-  
-      let listRecord = await Variable.findByPk(itemTwo.id, {
-        include: [
-          { model: Variable, as: 'ListVariable' }
-        ]
-      });
-      expect(listRecord?.ListVariable![0].value).toEqual('TEST_VALUE_ONE');
-  
-      await Variable.update({
-        value: 'TEST_VALUE_UPDATED'
-      }, { where: { id: itemOne.id } });
-  
-      listRecord = await Variable.findByPk(itemTwo.id, {
-        include: [
-          { model: Variable, as: 'ListVariable' }
-        ]
-      });
-      expect(listRecord?.ListVariable![0].value).toEqual('TEST_VALUE_UPDATED');
-    } catch(e) {
-      console.log('UPDATE VARIABLE VALUES ERROR:',e);
+    const itemOne = await Variable.create({ key: 'first', value: 'TEST_VALUE_ONE', type: 'STRING'});
+    const itemTwo = await Variable.create({ key: 'parent', type: 'LIST' });
+    await ListItem.create({ listId: itemTwo.id, resourceId: itemOne.id });
+
+    let listRecord = await Variable.findByPk(itemTwo.id, {
+      include: [
+        { model: Variable, as: 'ListVariable' }
+      ]
+    });
+    expect(listRecord?.ListVariable![0].value).toEqual('TEST_VALUE_ONE');
+
+    await Variable.update({
+      value: 'TEST_VALUE_UPDATED'
+    }, { where: { id: itemOne.id } });
+
+    listRecord = await Variable.findByPk(itemTwo.id, {
+      include: [
+        { model: Variable, as: 'ListVariable' }
+      ]
+    });
+    expect(listRecord?.ListVariable![0].value).toEqual('TEST_VALUE_UPDATED');
+  });
+
+  test('Should be able to return a nested set of repository variable list instances', async () => {
+    const Variable = repository.getModel<VariableInstance>('Variable');
+    const ListItem = repository.getModel<ListItemInstance>('ListItem');
+    
+    const list1 = await Variable.create({
+      key: 'LIST_1',
+      type: 'LIST'
+    });
+    const list2 = await Variable.create({
+      key: 'LIST_2',
+      type: 'LIST'
+    });
+    const item1 = await Variable.create({
+      key: 'LIST_1_ITEM_1',
+      value: 'VALUE_ONE',
+      type: 'STRING'
+    });
+    const item2 = await Variable.create({
+      key: 'LIST_2_ITEM_2',
+      value: 'VALUE_TWO',
+      type: 'STRING'
+    });
+    await ListItem.create({
+      listId: list1.id,
+      resourceId: item1.id
+    });
+    await ListItem.create({
+      listId: list1.id,
+      resourceId: list2.id
+    });
+    await ListItem.create({
+      listId: list2.id,
+      resourceId: item2.id
+    });
+
+    const records = await repository.getLinkedInstances('Variable', list1.id, {
+      as: 'ListVariable',
+    }); 
+    expect(records).toBeTruthy();
+    if (records && isVariableInstance(records)) {
+      expect(records.key).toEqual('LIST_1');
+      expect(records?.ListVariable![0].key).toEqual('LIST_1_ITEM_1');
+      expect(records?.ListVariable![1].key).toEqual('LIST_2');
+      expect(records?.ListVariable![1].ListVariable![0].key).toEqual('LIST_2_ITEM_2');
     }
   });
 

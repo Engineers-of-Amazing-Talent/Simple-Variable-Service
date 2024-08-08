@@ -1,4 +1,5 @@
 import { Sequelize, ModelAttributes, Model, ModelStatic } from 'sequelize';
+import { isVariableInstance, ModelInstance, VariableInstance } from '.';
 
 export type Schema = {
   name: string,
@@ -22,6 +23,10 @@ export type ConnectionParams = {
   options?: object
 }
 
+export type LinkedQueryParams = {
+  as: string;
+}
+
 export class Repository {
   private db: Sequelize | null;
   public schemas: Schema[];
@@ -31,12 +36,6 @@ export class Repository {
     this.db = null;
     this.schemas = [];
     this.associations = [];
-  }
-
-  // TODO: recursive search for list contents
-  static async handleListVariable(model: Model) {
-    // let record  = await queryModel.findByPk(options.resourceId, queryOptions);
-    // if (record.List)
   }
 
   async connect(params: ConnectionParams): Promise<void> {
@@ -130,5 +129,34 @@ export class Repository {
       from: schemaFrom,
       ...associationParams
     });
+  }
+
+  async getLinkedInstances(modelName: string, id: string, params: LinkedQueryParams): Promise<ModelInstance | null> {
+    const Model = this.getModel<ModelInstance>(modelName);
+    const parent: ModelInstance | null = await Model.findByPk(id, {
+      include: [
+        {
+          model: Model,
+          as: params.as,
+        },
+      ]
+    });
+    if (!parent) {
+      return null;
+    }
+    // Recursive case: Fetch linked variables of the linked variables
+    if (parent && isVariableInstance(parent)) {
+      if (parent.ListVariable) {
+        parent.ListVariable = (
+          await Promise.all(
+            parent.ListVariable.map(async (linkedInstance: any) => {
+              const subLinkedInstances = await this.getLinkedInstances(modelName, linkedInstance.id, params);
+              return subLinkedInstances;
+            })
+          )
+        ).filter((instance): instance is VariableInstance => instance !== null);
+      }
+    }
+    return parent;
   }
 }
