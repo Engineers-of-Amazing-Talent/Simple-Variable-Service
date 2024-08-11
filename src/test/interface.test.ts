@@ -139,13 +139,11 @@ describe('Collection Interface', () => {
         includeAs: 'ListVariable'
       });
 
-      if (query) {
-        expect(query.data).toMatchObject({
-          'LEVEL_TWO': {
-            'LEVEL_TWO_VALUE': true
-          },
-        });
-      }
+      expect(query?.data).toMatchObject({
+        'LEVEL_TWO': {
+          'LEVEL_TWO_VALUE': true
+        },
+      });
     }
   });
 });

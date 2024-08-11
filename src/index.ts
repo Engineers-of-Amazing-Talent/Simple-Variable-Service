@@ -15,8 +15,8 @@ const {
 } = process.env;
 
 app.use(useCollection);
-app.use(variableRouter);
-app.use(listRouter);
+app.use('/variable', variableRouter);
+app.use('/listItem', listRouter);
 app.use(errorHandler);
 
 repository.connect({

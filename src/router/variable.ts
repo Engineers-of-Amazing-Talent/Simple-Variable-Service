@@ -1,4 +1,5 @@
 import express, { Router, Request, Response, NextFunction} from 'express';
+import { validateRequestBody } from './middleware/validateRequestBody';
 
 const router: Router = express.Router();
 router.use(express.json());
@@ -14,7 +15,7 @@ async function readVariables(request: Request, response: Response, next: NextFun
           data: query.data
         });
       } else {
-        response.status(404);
+        next({ message: 'Not Found', status: 404 })
       }
     } else {
       next({ message: 'No Collection interface' });
@@ -42,15 +43,42 @@ async function createVariable(request: Request, response: Response, next: NextFu
   }
 }
 async function updateVariable(request: Request, response: Response, next: NextFunction) {
-  response.send('UPDATE IN_PROGRESS');
+  try {
+    if (request.collection) {
+      const { resourceId } = request.params;
+      const query = await request.collection.update('Variable', resourceId, request.body);
+      if (query) {
+        response.status(200).json(query);
+      }
+    } else {
+      next({ message: 'No Collection interface'});
+    }
+  } catch (e) {
+    next({ message: 'Variable Router Error:Unable to update variable record', error: e });
+  }
 }
 async function deleteVariable(request: Request, response: Response, next: NextFunction) {
-  response.send('DELETE IN_PROGRESS');
+  try {
+    if (request.collection) {
+      const { resourceId } = request.params;
+      const queryResponse = await request.collection.delete('Variable', resourceId);
+      if (queryResponse === 0) {
+        response.sendStatus(204);
+      } else {
+        next({ message: 'Variable not found', status: 404 });
+      }
+    } else {
+      next({ message: 'No Collection interface' });
+    }
+  } catch (e) {
+    console.log(e);
+    next({ message: 'Variable Router Error:unable to remove Variable record', error: e });
+  }
 }
 
-router.post('/variable', createVariable);
-router.get('/variable/:resourceId', readVariables);
-router.patch('/variable/:resourceId', updateVariable);
-router.delete('/variable/:resourceId', deleteVariable);
+router.post('/', validateRequestBody, createVariable);
+router.get('/:resourceId', readVariables);
+router.patch('/:resourceId', validateRequestBody, updateVariable);
+router.delete('/:resourceId', deleteVariable);
 
 export default router;
