@@ -1,4 +1,5 @@
 import { Sequelize, ModelAttributes, Model, ModelStatic } from 'sequelize';
+import { isVariableInstance, ModelInstance, VariableInstance } from '.';
 
 export type Schema = {
   name: string,
@@ -20,6 +21,11 @@ export interface Association extends AssociationParams {
 export type ConnectionParams = {
   url: string;
   options?: object
+}
+
+export type LinkedQueryParams = {
+  as: string;
+  include: string;
 }
 
 export class Repository {
@@ -124,5 +130,39 @@ export class Repository {
       from: schemaFrom,
       ...associationParams
     });
+  }
+
+  async getLinkedInstances(modelName: string, id: string, params?: LinkedQueryParams): Promise<ModelInstance | null> {
+    const Model = this.getModel<ModelInstance>(modelName);
+    let includeOptions = {};
+    if (params) {
+      const IncludeModel = this.getModel<ModelInstance>(params.include);
+      includeOptions = {
+        include: [
+          {
+            model: IncludeModel,
+            as: params.as,
+          },
+        ]
+      }
+    }
+    const parent: ModelInstance | null = await Model.findByPk(id, includeOptions);
+    if (!parent) {
+      return null;
+    }
+    // Recursive case: Fetch linked variables of the linked variables
+    if (parent && isVariableInstance(parent)) {
+      if (parent.ListVariable) {
+        parent.ListVariable = (
+          await Promise.all(
+            parent.ListVariable.map(async (linkedInstance: any) => {
+              const subLinkedInstances = await this.getLinkedInstances(modelName, linkedInstance.id, params);
+              return subLinkedInstances;
+            })
+          )
+        ).filter((instance): instance is VariableInstance => instance !== null);
+      }
+    }
+    return parent;
   }
 }
