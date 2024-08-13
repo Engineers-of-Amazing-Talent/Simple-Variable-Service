@@ -285,3 +285,11 @@ describe('Variable Repository', () => {
     expect(integer.value).toEqual('False');
   });
 });
+
+describe('Permissions and Access', () => {
+
+  xtest('Should be able to create a Permission for a given resource', async () => {
+    const Variable = repository.getModel('Variable');
+    const Permissions = repository.getModel('Permission');
+  });
+});

@@ -6,6 +6,12 @@ export type Schema = {
   attributes: ModelAttributes
 }
 
+export interface OneWayParams {
+  modelName: string,
+  as: string;
+  foreignKey: string;
+}
+
 export interface AssociationParams {
   through: Schema;
   as: string;
@@ -96,6 +102,14 @@ export class Repository {
       throw new Error('Create Model Error: db is not initialized');
     }
     this.db?.define(modelSchema.name, modelSchema.attributes);
+  }
+
+  createOneToMany(to: OneWayParams, from: OneWayParams) {
+    const To = this.getModel(to.modelName);
+    const From = this.getModel(from.modelName);
+
+    To.hasMany(From, { as : to.as, foreignKey: to.foreignKey });
+    From.belongsTo(To, { as: from.as, foreignKey: from.foreignKey });
   }
 
   createManyToMany(association: Association) {

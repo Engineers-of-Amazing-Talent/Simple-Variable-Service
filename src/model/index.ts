@@ -1,5 +1,5 @@
 // export * from './accessKey';
-// export * from './permissions';
+import { permissionSchema } from './permissions';
 import { Repository } from './Repository';
 import { variableSchema, VariableInstance, VariableCreationAttributes } from './variable';
 import { listItemSchema, ListItemInstance, ListItemCreationAttributes } from './listItem';
@@ -9,6 +9,7 @@ export type ModelAttributes = VariableCreationAttributes | ListItemCreationAttri
 export * from './Repository';
 export * from './variable';
 export * from './listItem';
+export * from './permissions';
 
 export function isVariableInstance(instance: ModelInstance): instance is VariableInstance {
   return (instance as VariableInstance).type !== undefined && (instance as VariableInstance).key !== undefined;
@@ -21,6 +22,7 @@ export function isListItemInstance(instance: ModelInstance): instance is ListIte
 const repository = new Repository();
 repository.addSchema(variableSchema);
 repository.addSchema(listItemSchema);
+repository.addSchema(permissionSchema);
 repository.addJoinAssociation(variableSchema, variableSchema, {
   through: listItemSchema,
   as: 'ListVariable',
