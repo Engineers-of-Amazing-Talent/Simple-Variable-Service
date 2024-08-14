@@ -10,7 +10,7 @@ async function readListItem(request: Request, response: Response, next: NextFunc
     const query = await request.collection.read('ListItem', { resourceId });
     if (query) {
       response.status(200).json({
-        data: query.data
+        record: query.record
       });
     } else {
       next({ message: 'List Item not Found', status: 404 });

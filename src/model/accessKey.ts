@@ -9,7 +9,6 @@ export interface AccessKeyAttributes {
 }
 
 export interface AccesskeyCreationAttributes extends Optional<AccessKeyAttributes, 'hash'> { }
-
 export interface AccessKeyInstance extends Model<AccessKeyAttributes, AccessKeyAttributes>, AccessKeyAttributes { }
 
 export const generateHash = async (instance: AccessKeyInstance) => {

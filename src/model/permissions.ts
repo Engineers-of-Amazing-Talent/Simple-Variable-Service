@@ -1,15 +1,16 @@
-import { DataTypes, Model, Optional } from "sequelize"
+import { DataTypes, Model, Optional } from "sequelize";
 import { Schema } from './Repository';
 
 export interface PermissionAttributes {
   capability: 'READ' | 'WRITE' | 'OWNER',
-  userId: String,
-  resourceId: String,
+  userId: string,
+  resourceId: string,
 }
 
 export interface PermissionCreationAttributes extends Optional<PermissionAttributes, 'capability'>{}
-
-export interface PermissionInstance extends Model<PermissionAttributes, PermissionCreationAttributes>, PermissionAttributes {}
+export interface PermissionInstance extends Model<PermissionAttributes, PermissionCreationAttributes>, PermissionAttributes {
+  id: string
+}
 
 const allowedCapabilities = ['READ', 'WRITE', 'OWNER'];
 
@@ -27,7 +28,7 @@ export const permissionSchema: Schema = {
       defaultValue: 'READ',
       allowNull: false,
       validate: {
-        isAllowed: {
+        isIn: {
           args: [allowedCapabilities],
           msg: `Type must be one of: ${allowedCapabilities.join(', ')}`
         }

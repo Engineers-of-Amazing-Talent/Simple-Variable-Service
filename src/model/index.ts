@@ -1,6 +1,7 @@
 // export * from './accessKey';
-import { permissionSchema } from './permissions';
 import { Repository } from './Repository';
+import { permissionSchema } from './permissions';
+import { userProfileSchema } from './userProfile';
 import { variableSchema, VariableInstance, VariableCreationAttributes } from './variable';
 import { listItemSchema, ListItemInstance, ListItemCreationAttributes } from './listItem';
 
@@ -23,6 +24,7 @@ const repository = new Repository();
 repository.addSchema(variableSchema);
 repository.addSchema(listItemSchema);
 repository.addSchema(permissionSchema);
+repository.addSchema(userProfileSchema);
 repository.addJoinAssociation(variableSchema, variableSchema, {
   through: listItemSchema,
   as: 'ListVariable',
