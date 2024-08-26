@@ -6,9 +6,7 @@ export interface ListItemAttributes {
   resourceId: String,
 }
 
-// Define the attributes for creating a new model instance, where id is optional
 export interface ListItemCreationAttributes extends Optional<ListItemAttributes, 'listId' | 'resourceId'> { }
-
 export interface ListItemInstance extends Model<ListItemAttributes, ListItemCreationAttributes>, ListItemAttributes {
   id: string;
 }
@@ -23,11 +21,11 @@ export const listItemSchema: Schema = {
       primaryKey: true
     },
     listId: {
-      type: DataTypes.UUIDV4,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     resourceId: {
-      type: DataTypes.UUIDV4,
+      type: DataTypes.UUID,
       allowNull: false
     }
   }

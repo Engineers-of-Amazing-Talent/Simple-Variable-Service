@@ -13,7 +13,7 @@ import {
 export interface readOptions {
   resourceId: string
   include?: string
-  includeAs?: string
+  as?: string
 }
 
 export type QueryResponse = {
@@ -74,9 +74,9 @@ export class Collection {
   async read(modelName: string, options: readOptions): Promise<QueryResponse | null> {
     try {
       let queryOptions: LinkedQueryParams | undefined;
-      
-      if (options.includeAs && options.include) {
-        queryOptions = { as: options.includeAs, include: options.include };
+      let { as, include } = options;
+      if (as &&  include) {
+        queryOptions = { as, include };
       }
   
       const record = await this.repository.getLinkedInstances(modelName, options.resourceId, queryOptions);

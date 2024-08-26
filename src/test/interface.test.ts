@@ -69,7 +69,7 @@ describe('Collection Interface', () => {
       const response = await collection.read('Variable', {
         resourceId: listInstance.id,
         include: 'Variable',
-        includeAs: 'ListVariable'
+        as: 'ListVariable'
       });
 
       if (response && isVariableInstance(response.record)) {
@@ -100,7 +100,7 @@ describe('Collection Interface', () => {
       const response = await collection.read('Variable', {
         resourceId: listInstance.id,
         include: 'Variable',
-        includeAs: 'ListVariable'
+        as: 'ListVariable'
       });
       if (response && isVariableInstance(response.record)) {
         expect(response.data).toEqual({
@@ -136,7 +136,7 @@ describe('Collection Interface', () => {
       const query = await collection.read('Variable', {
         resourceId: listInstance.id,
         include: 'Variable',
-        includeAs: 'ListVariable'
+        as: 'ListVariable'
       });
 
       expect(query?.data).toMatchObject({

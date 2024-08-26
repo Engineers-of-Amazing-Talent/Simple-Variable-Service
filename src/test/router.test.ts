@@ -8,6 +8,7 @@ import repository, { VariableInstance, ListItemInstance  } from '../model';
 let variable: VariableInstance | null = null;
 let deleteMe: VariableInstance | null = null;
 let list: VariableInstance | null = null;
+let listItem: ListItemInstance | null = null;
 
 beforeAll(async () => {
   let Variables = repository.getModel<VariableInstance>('Variable');
@@ -26,7 +27,7 @@ beforeAll(async () => {
     key: 'ROUTER_TEST_LIST_KEY',
     type: 'LIST'
   });
-  await ListItems.create({
+  listItem = await ListItems.create({
     listId: list.id,
     resourceId: variable.id
   });
@@ -119,6 +120,16 @@ describe('Service Router', () => {
       'LIST_2': {
         'NESTED_KEY': 'NESTED_VALUE'
       }
+    });
+  });
+  test('Should be able to read listItems from GET /listItem', async () => {
+    const request = supertest(testApp);
+
+    const response = await request.get(`/listItem/${listItem?.id}`);
+    expect(response.status).toEqual(200);
+    expect(response.body.record).toMatchObject({
+      listId: list?.id,
+      resourceId: variable?.id
     });
   });
 

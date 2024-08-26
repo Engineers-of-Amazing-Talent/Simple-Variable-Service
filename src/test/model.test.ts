@@ -1,5 +1,7 @@
 import { VariableInstance } from '../model/variable';
 import { ListItemInstance } from '../model/listItem';
+import { UserProfileInstance } from '../model/userProfile';
+import { PermissionInstance } from '../model';
 import repository, { isVariableInstance } from '../model';
 
 afterEach(async () => {
@@ -283,5 +285,54 @@ describe('Variable Repository', () => {
     });
 
     expect(integer.value).toEqual('False');
+  });
+});
+
+describe('Permissions and Access', () => {
+
+  test('Should be able to create a Permission for a given resource and user', async () => {
+    const Variable = repository.getModel<VariableInstance>('Variable');
+    const Permissions = repository.getModel<PermissionInstance>('Permission');
+    const UserProfile = repository.getModel<UserProfileInstance>('UserProfile');
+
+    const variable = await Variable.create({
+      type: 'STRING',
+      key: 'name',
+      value: 'Jacob'
+    });
+
+    const user = await UserProfile.create({
+      externalId: '1'
+    });
+
+    const permission = await Permissions.create({
+      capability: 'OWNER',
+      resourceId: variable.id,
+      userId: user.id
+    });
+    expect(permission.id).toBeTruthy();
+    expect(permission.capability).toEqual('OWNER');
+    expect(permission.resourceId).toEqual(variable.id);
+    expect(permission.userId).toEqual(user.id);
+  });
+
+  test('Should create a default READ capability when no capability is specified', async () => {
+    const Variable = repository.getModel<VariableInstance>('Variable');
+    const Permissions = repository.getModel<PermissionInstance>('Permission');
+    const UserProfile = repository.getModel<UserProfileInstance>('UserProfile');
+
+    const variable = await Variable.create({
+      type: 'INTEGER',
+      key: 'height',
+      value: '6'
+    });
+    const user = await UserProfile.create({
+      externalId: '2'
+    });
+    const permission = await Permissions.create({
+        resourceId: variable.id,
+        userId: user.id
+      })
+    expect(permission.capability).toEqual('READ');
   });
 });
