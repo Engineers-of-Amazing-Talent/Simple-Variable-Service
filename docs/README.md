@@ -12,9 +12,10 @@ Creates a New Variable with a single value.
 **Endpoint**: `/variable`
 
 **Headers**:
-| Key            | Value           | Description                       |
-| -------------- | --------------- | --------------------------------- |
-| Content-Type   | application/json| The type of content being sent    |
+
+| Key            | Value           | Description                       | 
+| -------------- | --------------- | --------------------------------- | 
+| Content-Type   | application/json| The type of content being sent    | 
 
 **Request Body** :
 
@@ -56,6 +57,7 @@ Creates a New Variable which holds onto a list of variables.
 **Endpoint**: `/variable`
 
 **Headers**:
+
 | Key            | Value           | Description                       |
 | -------------- | --------------- | --------------------------------- |
 | Content-Type   | application/json| The type of content being sent    |
@@ -96,6 +98,7 @@ Associates data with a list variable.
 **Endpoint**: `/listItem`
 
 **Headers**:
+
 | Key            | Value           | Description                       |
 | -------------- | --------------- | --------------------------------- |
 | Content-Type   | application/json| The type of content being sent    |
@@ -139,6 +142,7 @@ Fetches Variable Data.
 **Endpoint**: `/variable/{resourceId}`
 
 **Path Parameters**:
+
 | Parameter      | Type    | Description                          |
 | -------------- | ------- | ------------------------------------ |
 | resourceId     | UUID    | The unique identifier of the resource|
@@ -173,11 +177,13 @@ Updates Variable Details.
 **Endpoint**: `/variable/{resourceId}`
 
 **Headers**:
+
 | Key            | Value           | Description                       |
 | -------------- | --------------- | --------------------------------- |
 | Content-Type   | application/json| The type of content being sent    |
 
 **Path Parameters**:
+
 | Parameter      | Type    | Description                          |
 | -------------- | ------- | ------------------------------------ |
 | resourceId     | UUID    | The unique identifier of the resource|
@@ -222,6 +228,7 @@ Deletes a Variable.
 **Endpoint**: `/variable/{resourceId}`
 
 **Path Parameters**:
+
 | Parameter      | Type    | Description                          |
 | -------------- | ------- | ------------------------------------ |
 | resourceId     | UUID    | The unique identifier of the resource|
