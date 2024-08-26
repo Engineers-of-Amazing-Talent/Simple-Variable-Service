@@ -21,11 +21,11 @@ export const listItemSchema: Schema = {
       primaryKey: true
     },
     listId: {
-      type: DataTypes.UUIDV4,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     resourceId: {
-      type: DataTypes.UUIDV4,
+      type: DataTypes.UUID,
       allowNull: false
     }
   }
