@@ -6,6 +6,7 @@ dotenv.config();
 
 const app: Express = express();
 const {
+  NODE_ENV,
   APP_PORT,
   POSTGRES_USER,
   POSTGRES_PASSWORD,
@@ -19,9 +20,11 @@ app.use('/variable', variableRouter);
 app.use('/listItem', listRouter);
 app.use(errorHandler);
 
+const dialectOptions = { ssl: { rejectUnauthorized: false, required: true } };
+
 repository.connect({
   url: `postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${DB_PORT}/${POSTGRES_DB}`,
-  options: {}
+  options: NODE_ENV === 'production' ? {dialectOptions} : {}
 })
 .then(() => repository.initialize())
 .then(() => {
