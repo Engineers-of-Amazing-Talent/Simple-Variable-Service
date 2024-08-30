@@ -27,6 +27,10 @@ async function readVariables(request: Request, response: Response, next: NextFun
 
 async function createVariable(request: Request, response: Response, next: NextFunction) {
   try {
+    if (!request.body.type || !request.body.key || (request.body.type !== 'LIST' && !request.body.value)) {
+      next({ message: 'Invalid Variable Properties', status: 400 });
+    }
+
     if (request.collection) {
       const query = await request.collection.write('Variable', {
         type: request.body.type,

@@ -22,6 +22,10 @@ async function readListItem(request: Request, response: Response, next: NextFunc
 
 async function writeListItem(request: Request, response: Response, next: NextFunction) {
   try {
+    if (!request.body.resourceId || !request.body.listId) {
+      next({ message: 'Invalid ListItem Properties', status: 400 });
+    }
+
     if (request.collection) {
       const query = await request.collection.write('ListItem', {
         resourceId: request.body.resourceId,
