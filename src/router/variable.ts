@@ -42,7 +42,7 @@ async function createVariable(request: Request, response: Response, next: NextFu
       next({ message: 'No Collection interface' });
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
     next({ message: 'Variable Router Error: unable to create variable record' , error: e });
   }
 }
@@ -75,7 +75,7 @@ async function deleteVariable(request: Request, response: Response, next: NextFu
       next({ message: 'No Collection interface' });
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
     next({ message: 'Variable Router Error:unable to remove Variable record', error: e });
   }
 }

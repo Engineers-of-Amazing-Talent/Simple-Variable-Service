@@ -36,7 +36,7 @@ async function writeListItem(request: Request, response: Response, next: NextFun
       next({ message: 'No Collection interface' });
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
     next({ message: 'ListItem Router Error:unable to create listItem record', error: e });
   }
 }
@@ -55,7 +55,7 @@ async function deleteListItem(request: Request, response: Response, next: NextFu
       next({ message: 'No Collection interface'});
     }
   } catch(e) {
-    console.log(e);
+    console.error(e);
     next({ message: 'ListItem Router Error:unable to remove listItem record', error: e });
   }
 }

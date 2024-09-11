@@ -209,22 +209,26 @@ describe('Service Router', () => {
 
   // Error Handling
   test('Should return a status 404 for non-existent variable', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
     let request = supertest(testApp);
 
     let response = await request.get('/variable/12345');
     expect(response.status).toEqual(404);
   });
   test('Should return a 400 for missing request body on POST', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
     const request = supertest(testApp);
     const response = await request.post('/variable');
     expect(response.status).toEqual(400);
   });
   test('Should return a 400 for missing properties for Variable', async() => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
     const request = supertest(testApp);
     const response = await request.post('/variable').send({ type: 'STRING' });
     expect(response.status).toEqual(400);
   });
   test('Should return a 400 for missing properties for ListItem', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
     const request = supertest(testApp);
     const response = await request.post('/listItem').send({ resourceId: stringVariable?.id });
     expect(response.status).toEqual(400);

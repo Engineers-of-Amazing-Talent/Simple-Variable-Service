@@ -9,7 +9,6 @@ export interface VariableAttributes {
 }
 
 export interface VariableCreationAttributes extends Optional<VariableAttributes, 'value'> { }
-
 export interface VariableInstance extends Model<VariableAttributes, VariableCreationAttributes>, VariableAttributes {
   id: string;
   ListVariable?: VariableInstance[],

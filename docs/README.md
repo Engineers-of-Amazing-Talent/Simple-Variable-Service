@@ -9,13 +9,13 @@ Creates a New Variable with a single value.
 
 **Method**: `POST`
 
-**Endpoint**: `/variable`
+**Endpoint**: `api/v1/variable`
 
 **Headers**:
 
-| Key            | Value           | Description                       | 
-| -------------- | --------------- | --------------------------------- | 
-| Content-Type   | application/json| The type of content being sent    | 
+| Key            | Value           | Description                       |
+| -------------- | --------------- | --------------------------------- |
+| Content-Type   | application/json| The type of content being sent    |
 
 **Request Body** :
 
@@ -54,7 +54,7 @@ Creates a New Variable which holds onto a list of variables.
 
 **Method**: `POST`
 
-**Endpoint**: `/variable`
+**Endpoint**: `api/v1/variable`
 
 **Headers**:
 
@@ -95,7 +95,7 @@ Associates data with a list variable.
 
 **Method**: `POST`
 
-**Endpoint**: `/listItem`
+**Endpoint**: `api/v1/listItem`
 
 **Headers**:
 
@@ -139,7 +139,7 @@ Fetches Variable Data.
 
 **Method**: `GET`
 
-**Endpoint**: `/variable/{resourceId}`
+**Endpoint**: `api/v1/variable/{resourceId}`
 
 **Path Parameters**:
 
@@ -174,7 +174,7 @@ Updates Variable Details.
 
 **Method**: `PATCH`
 
-**Endpoint**: `/variable/{resourceId}`
+**Endpoint**: `api/v1/variable/{resourceId}`
 
 **Headers**:
 
@@ -225,7 +225,7 @@ Deletes a Variable.
 
 **Method**: `DELETE`
 
-**Endpoint**: `/variable/{resourceId}`
+**Endpoint**: `api/v1/variable/{resourceId}`
 
 **Path Parameters**:
 
