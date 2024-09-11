@@ -24,12 +24,23 @@ export type QueryError = {
   message: string,
 }
 
-type JSONValue = | string | number | boolean | JSONObject | JSONArray;
+type JSONValue = | string | number | Boolean | JSONObject | JSONArray;
 interface JSONObject {
   [x: string]: JSONValue;
 }
 interface JSONArray extends Array<JSONValue> { }
  
+function parseBoolean(value: string): Boolean {
+  const lowercase = value.toLowerCase();
+  if (lowercase === 'true') {
+    return true;
+  } else if (lowercase === 'false') {
+    return false;
+  } else {
+    throw new Error('Collection Interface:Invalid boolean value');
+  }
+}
+
 export class Collection {
   repository: Repository;
 
@@ -37,14 +48,14 @@ export class Collection {
     this.repository = repository;
   }
 
-  static parseValue(type: string, value: string): string | number | boolean {
+  static parseValue(type: string, value: string): string | number | Boolean {
     switch(type) {
       case ('FLOAT'):
         return parseFloat(value);
       case ('INTEGER'):
         return parseInt(value);
       case ('BOOLEAN'):
-        return Boolean(value);
+        return parseBoolean(value);
       case ('STRING'):
       default:
         return value;
@@ -59,8 +70,9 @@ export class Collection {
             next[child.key] = Collection.parseValue(child.type, child.value);
           }
           if (child.type === 'LIST') {
-            let newChild: JSONObject = {}
-            if (child.value) newChild.meta = child.value;
+            let newChild: JSONObject = {};
+            // TODO: How do we handle list metadata? 
+            // if (child.value) newChild.meta = child.value;
             next[child.key] = newChild;
             Collection.parseList(child, newChild);
           }
@@ -86,7 +98,7 @@ export class Collection {
           if (record.type === 'LIST') {
             data = await Collection.parseList(record, {});
           } else {
-            data = record.value;
+            data = Collection.parseValue(record.type, record.value as string);
           }
         }
         return {
@@ -105,10 +117,10 @@ export class Collection {
     try {
       const queryModel = this.repository.getModel<ModelInstance>(modelName);
       const record = await queryModel.create(values);
-  
+
       return {
         record,
-        data: isVariableInstance(record) ? record.value : null
+        data: isVariableInstance(record) ? Collection.parseValue(record.type, record.value as string) : null
       };
     } catch(e) {
       console.error(e);

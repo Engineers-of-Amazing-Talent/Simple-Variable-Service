@@ -27,6 +27,10 @@ async function readVariables(request: Request, response: Response, next: NextFun
 
 async function createVariable(request: Request, response: Response, next: NextFunction) {
   try {
+    if (!request.body.type || !request.body.key || (request.body.type !== 'LIST' && !request.body.value)) {
+      next({ message: 'Invalid Variable Properties', status: 400 });
+    }
+
     if (request.collection) {
       const query = await request.collection.write('Variable', {
         type: request.body.type,
@@ -38,7 +42,7 @@ async function createVariable(request: Request, response: Response, next: NextFu
       next({ message: 'No Collection interface' });
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
     next({ message: 'Variable Router Error: unable to create variable record' , error: e });
   }
 }
@@ -71,7 +75,7 @@ async function deleteVariable(request: Request, response: Response, next: NextFu
       next({ message: 'No Collection interface' });
     }
   } catch (e) {
-    console.log(e);
+    console.error(e);
     next({ message: 'Variable Router Error:unable to remove Variable record', error: e });
   }
 }

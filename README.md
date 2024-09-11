@@ -113,17 +113,14 @@ Description: Retrieves a single resource by its ID.
 ##### Request
 
 ```bash
-GET /variable/{id}
+GET api/v1/variable/{id}
 ```
 
 ##### Response
 
 ```json
 {
-  "id": "resource-id",
-  "type": "STRING | INTEGER | BOOLEAN | FLOAT | LIST",
-  "key": "variable key",
-  "value": "variable value"
+  "data": "variable value",
 }
 ```
 

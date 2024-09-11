@@ -5,7 +5,10 @@ import testApp from './util/testApp';
 import { useCollection, errorHandler } from '../router';
 import repository, { VariableInstance, ListItemInstance  } from '../model';
 
-let variable: VariableInstance | null = null;
+let stringVariable: VariableInstance | null = null;
+let intVariable: VariableInstance | null = null;
+let boolVariable: VariableInstance | null = null;
+let floatVariable: VariableInstance | null = null;
 let deleteMe: VariableInstance | null = null;
 let list: VariableInstance | null = null;
 let listItem: ListItemInstance | null = null;
@@ -18,10 +21,25 @@ beforeAll(async () => {
     key: 'DELETE_KEY',
     value: 'DELETE_VALUE'
   });
-  variable = await Variables.create({
+  stringVariable = await Variables.create({
     type: 'STRING',
     key: 'ROUTER_TEST_KEY',
     value: 'ROUTER_TEST_VALUE'
+  });
+  intVariable = await Variables.create({
+    type: 'INTEGER',
+    key: 'ROUTER_TEST_INT',
+    value: '1000'
+  });
+  boolVariable = await Variables.create({
+    type: 'BOOLEAN',
+    key: 'ROUTER_TEST_BOOL',
+    value: 'false'
+  });
+  floatVariable = await Variables.create({
+    type: 'FLOAT',
+    key: 'ROUTER_TEST_FLOAT',
+    value: '1.11'
   });
   list = await Variables.create({
     key: 'ROUTER_TEST_LIST_KEY',
@@ -29,7 +47,7 @@ beforeAll(async () => {
   });
   listItem = await ListItems.create({
     listId: list.id,
-    resourceId: variable.id
+    resourceId: stringVariable.id
   });
   testApp.use(useCollection);
   testApp.use('/variable', variableRouter);
@@ -60,7 +78,7 @@ describe('Service Router', () => {
 
   test('Should be able to read an existing resource on GET to /variable/:resourceId', async () => {
     const request = supertest(testApp);
-    const response = await request.get(`/variable/${variable?.id}`);
+    const response = await request.get(`/variable/${stringVariable?.id}`);
     expect(response.status).toEqual(200);
     expect(response.body.data).toEqual('ROUTER_TEST_VALUE')
   });
@@ -72,6 +90,24 @@ describe('Service Router', () => {
     expect(response.body.data).toEqual({
       'ROUTER_TEST_KEY': 'ROUTER_TEST_VALUE'
     });
+  });
+  test('Should be able to return INTEGER type on GET /variable', async () => {
+    const request = supertest(testApp);
+    const response = await request.get(`/variable/${intVariable?.id}`);
+    expect(response.status).toEqual(200);
+    expect(response.body.data).toEqual(1000);
+  });
+  test('Should be able to return BOOLEAN type on GET /variable', async () => {
+    const request = supertest(testApp);
+    const response = await request.get(`/variable/${boolVariable?.id}`);
+    expect(response.status).toEqual(200);
+    expect(response.body.data).toEqual(false);
+  });
+  test('Should be able to return FLOAT type on GET /variable', async () => {
+    const request = supertest(testApp);
+    const response = await request.get(`/variable/${floatVariable?.id}`);
+    expect(response.status).toEqual(200);
+    expect(response.body.data).toEqual(1.11);
   });
   test('Should be able to add a variable to a list and fetch updated values', async () => {
     const request = supertest(testApp);
@@ -129,14 +165,14 @@ describe('Service Router', () => {
     expect(response.status).toEqual(200);
     expect(response.body.record).toMatchObject({
       listId: list?.id,
-      resourceId: variable?.id
+      resourceId: stringVariable?.id
     });
   });
 
   test('Should be able to update an existing variable via PATCH to /variable', async () => {
     const request = supertest(testApp);
 
-    const variableResponse = await request.patch(`/variable/${variable?.id}`).send({
+    const variableResponse = await request.patch(`/variable/${stringVariable?.id}`).send({
       value: 'ROUTER_UPDATE_VALUE'
     });
 
@@ -173,14 +209,28 @@ describe('Service Router', () => {
 
   // Error Handling
   test('Should return a status 404 for non-existent variable', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
     let request = supertest(testApp);
 
     let response = await request.get('/variable/12345');
     expect(response.status).toEqual(404);
   });
   test('Should return a 400 for missing request body on POST', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
     const request = supertest(testApp);
     const response = await request.post('/variable');
+    expect(response.status).toEqual(400);
+  });
+  test('Should return a 400 for missing properties for Variable', async() => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+    const request = supertest(testApp);
+    const response = await request.post('/variable').send({ type: 'STRING' });
+    expect(response.status).toEqual(400);
+  });
+  test('Should return a 400 for missing properties for ListItem', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => { });
+    const request = supertest(testApp);
+    const response = await request.post('/listItem').send({ resourceId: stringVariable?.id });
     expect(response.status).toEqual(400);
   });
 });

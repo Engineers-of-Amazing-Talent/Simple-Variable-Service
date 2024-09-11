@@ -62,6 +62,40 @@ describe('Collection Interface', () => {
     }
   });
 
+  test('Should be able to provide valid INTEGER Type', async () => {
+    const collection = new Collection(repository);
+
+    const response: QueryResponse = await collection.write('Variable', {
+      type: 'INTEGER',
+      value: '100',
+      key: 'MY_INTEGER'
+    });
+
+    if (isVariableInstance(response.record)) {
+      expect(response.data).toEqual(100);
+      expect(response.record.id).toBeTruthy();
+      expect(response.record.key).toEqual('MY_INTEGER');
+      expect(response.record.value).toEqual('100');
+    }
+  });
+
+  test('Should be able to proved valid BOOLEAN type', async () => {
+    const collection = new Collection(repository);
+
+    const response: QueryResponse = await collection.write('Variable', {
+      type: 'BOOLEAN',
+      value: 'false',
+      key: 'MY_BOOLEAN'
+    });
+
+    if (isVariableInstance(response.record)) {
+      expect(response.data).toEqual(false);
+      expect(response.record.id).toBeTruthy();
+      expect(response.record.key).toEqual('MY_BOOLEAN');
+      expect(response.record.value).toEqual('false');
+    }
+  });
+
   test('Should be able to Query a list item variable with list item value', async () => {
     const collection = new Collection(repository);
 
