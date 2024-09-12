@@ -4,6 +4,8 @@ import { permissionSchema } from './permissions';
 import { userProfileSchema } from './userProfile';
 import { variableSchema, VariableInstance, VariableCreationAttributes } from './variable';
 import { listItemSchema, ListItemInstance, ListItemCreationAttributes } from './listItem';
+// authentication model;
+import { userSchema } from '../auth';
 
 export type ModelInstance = VariableInstance | ListItemInstance;
 export type ModelAttributes = VariableCreationAttributes | ListItemCreationAttributes;
@@ -25,6 +27,7 @@ repository.addSchema(variableSchema);
 repository.addSchema(listItemSchema);
 repository.addSchema(permissionSchema);
 repository.addSchema(userProfileSchema);
+repository.addSchema(userSchema);
 repository.addJoinAssociation(variableSchema, variableSchema, {
   through: listItemSchema,
   as: 'ListVariable',

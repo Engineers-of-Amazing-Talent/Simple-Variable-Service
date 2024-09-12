@@ -1,9 +1,10 @@
-import { Sequelize, ModelAttributes, Model, ModelStatic } from 'sequelize';
+import { Sequelize, ModelAttributes, Options, Model, ModelStatic } from 'sequelize';
 import { isVariableInstance, ModelInstance, VariableInstance } from '.';
 
 export type Schema = {
   name: string,
-  attributes: ModelAttributes
+  attributes: ModelAttributes,
+  options?: Options
 }
 
 export interface OneWayParams {
@@ -101,7 +102,7 @@ export class Repository {
     if (!this.db) {
       throw new Error('Create Model Error: db is not initialized');
     }
-    this.db?.define(modelSchema.name, modelSchema.attributes);
+    this.db?.define(modelSchema.name, modelSchema.attributes, modelSchema.options);
   }
 
   createOneToMany(to: OneWayParams, from: OneWayParams) {
