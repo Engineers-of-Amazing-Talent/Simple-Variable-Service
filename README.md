@@ -79,14 +79,14 @@ Authorization: Bearer YOUR_ACCESS_KEY
 
 #### 1. Create a Variable
 
-Endpoint: `POST /variable`  
+Endpoint: `POST api/v1/variable`  
 Description: Create a single new Variable resource.
 
 ##### Request
 
 ```json
 {
-    "type": "STRING",
+    "type": "STRING" | "INTEGER" | "FLOAT" | "BOOLEAN" | "LIST",
     "key": "My Key",
     "value": "My Value"
 }

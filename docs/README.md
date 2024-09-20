@@ -1,5 +1,7 @@
 # Simple Variable Service Endpoints
 
+> **V1 - Unauthenticated Router: Deprecated**
+
 ## Creating a Variable
 
 **Description**:  

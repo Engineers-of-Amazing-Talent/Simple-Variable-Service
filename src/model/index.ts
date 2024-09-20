@@ -13,6 +13,7 @@ export * from './Repository';
 export * from './variable';
 export * from './listItem';
 export * from './permissions';
+export * from './userProfile';
 
 export function isVariableInstance(instance: ModelInstance): instance is VariableInstance {
   return (instance as VariableInstance).type !== undefined && (instance as VariableInstance).key !== undefined;
@@ -28,7 +29,14 @@ repository.addSchema(listItemSchema);
 repository.addSchema(permissionSchema);
 repository.addSchema(userProfileSchema);
 repository.addSchema(userSchema);
-repository.addJoinAssociation(variableSchema, variableSchema, {
+
+repository.addAssociation(userProfileSchema, permissionSchema, {
+  type: 'one-to-many',
+  as: 'permissions',
+  foreignKey: 'userProfileId'
+});
+repository.addAssociation(variableSchema, variableSchema, {
+  type: 'many-to-many',
   through: listItemSchema,
   as: 'ListVariable',
   foreignKey: 'listId',

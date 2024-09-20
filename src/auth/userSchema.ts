@@ -49,6 +49,9 @@ const userSchema: Schema = {
       type: DataTypes.VIRTUAL,
       get(this: UserInstance): string {
         return jwt.sign({ sub: this.id }, SECRET);
+      },
+      set(value: string): string {
+        return jwt.sign({ sub: value }, SECRET);
       }
     }
   },

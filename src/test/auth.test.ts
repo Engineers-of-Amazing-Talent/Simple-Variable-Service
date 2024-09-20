@@ -1,9 +1,25 @@
-import repository from '../model';
-import { UserInstance } from '../auth';
+import { Buffer } from 'node:buffer';
+import repository, {
+  UserProfileInstance,
+  PermissionInstance,
+  VariableInstance,
+} from '../model';
 import jwt from 'jsonwebtoken';
-import { authenticateToken } from '../auth';
+import { UserInstance, authenticateToken, authorizeUser, authRouter } from '../auth';
+import supertest from 'supertest';
+import testApp from './util/testApp';
+import { useCollection, errorHandler, variableRouter, listItemRouter } from '../router';
+
 
 const SECRET = process.env.AUTH_SECRET || 'svsdeveloper';
+
+beforeAll(() => {
+  testApp.use('/auth', authRouter);
+  testApp.use(useCollection);
+  testApp.use('/variable', variableRouter);
+  testApp.use('/listItem', listItemRouter);
+  testApp.use(errorHandler);
+});
 
 describe('Authentication and Authorization features', () => {
   test('Should be able to create a User with an Email, username, and password', async () => {
@@ -15,6 +31,7 @@ describe('Authentication and Authorization features', () => {
     });
 
     expect(user.id).toBeTruthy();
+    expect(user.token).toBeTruthy();
     expect(user.email).toEqual('test@email.com');
     expect(user.username).toEqual('test');
     expect(user.password).not.toEqual('supersecret');
@@ -39,6 +56,7 @@ describe('Authentication and Authorization features', () => {
       })
     ).rejects.toThrow();
   });
+
   test('Should authenticate a token string and return a valid User Instance', async () => {
     const Users = repository.getModel<UserInstance>('User');
     const authUser = await Users.create({
@@ -52,5 +70,107 @@ describe('Authentication and Authorization features', () => {
     expect(validUser.id).toEqual(authUser?.id);
     expect(validUser.email).toEqual(authUser?.email);
     expect(validUser.username).toEqual(authUser?.username);  
+  });
+  test('Should authorize users who have valid Permissions', async () => {
+    const Users = repository.getModel<UserInstance>('User');
+    const UserProfile = repository.getModel<UserProfileInstance>('UserProfile');
+    const Permissions = repository.getModel<PermissionInstance>('Permission');
+    const Variable = repository.getModel<VariableInstance>('Variable');
+
+    const authUser = await Users.create({
+      email: 'owner@test.com',
+      password: 'ownership',
+    });
+    const userProfile = await UserProfile.create({
+      externalId: authUser.id
+    });
+    const resource = await Variable.create({
+      type: 'STRING',
+      key: 'test',
+      value: 'this belongs to someone'
+    })
+    Permissions.create({
+      capability: 'OWNER',
+      userId: userProfile.id,
+      resourceId: resource.id
+    });
+    
+    const authorization = await authorizeUser(userProfile, resource.id, 'READ');
+    expect(authorization).toEqual(true);
+  });
+  test('Should return FALSE for a resource that lacks permission for a resource', async () => {
+    const Users = repository.getModel<UserInstance>('User');
+    const UserProfile = repository.getModel<UserProfileInstance>('UserProfile');
+    const Variable = repository.getModel<VariableInstance>('Variable');
+
+    const authUser = await Users.create({
+      email: 'user@test.com',
+      password: 'user',
+    });
+    const userProfile = await UserProfile.create({
+      externalId: authUser.id
+    });
+    const resource = await Variable.create({
+      type: 'BOOLEAN',
+      key: 'test_key',
+      value: 'false'
+    });
+
+    const authorization = await authorizeUser(userProfile, resource.id, 'READ');
+    expect(authorization).toEqual(false);
+  });
+  test('Should return FALSE for a user that is not granted specific capability permissions', async () => {
+    const Users = repository.getModel<UserInstance>('User');
+    const UserProfile = repository.getModel<UserProfileInstance>('UserProfile');
+    const Permissions = repository.getModel<PermissionInstance>('Permission');
+    const Variable = repository.getModel<VariableInstance>('Variable');
+
+    const authUser = await Users.create({
+      email: 'reader@test.com',
+      password: 'Icanread',
+    });
+    const userProfile = await UserProfile.create({
+      externalId: authUser.id
+    });
+    const resource = await Variable.create({
+      type: 'STRING',
+      key: 'test_string',
+      value: 'Here is something to read'
+    })
+    Permissions.create({
+      capability: 'READ',
+      userId: userProfile.id,
+      resourceId: resource.id
+    });
+
+    const authorized = await authorizeUser(userProfile, resource.id, 'WRITE');
+    expect(authorized).toEqual(false);
+  });
+});
+
+describe('Auth router routes and capabilities', () => {
+  test('Should be able to sign up a new user with email and password', async () => {
+    const request = supertest(testApp);
+    const response = await request.post('/auth/user').send({
+      email: 'test@test.com',
+      username: 'test user',
+      password: 'testpassword',
+    })
+    expect(response.status).toEqual(201);
+    expect(response.body.email).toEqual('test@test.com');
+    expect(response.body.token).toBeTruthy();
+  });
+  test('Should be able to exchange a registered users email and password for a token', async () => {
+    const request = supertest(testApp);
+    const base64Credentials = Buffer.from(`test@test.com:testpassword`).toString('base64');
+    const response = await request.post('/auth/token').set('Authorization', `Basic ${base64Credentials}`);
+    expect(response.status).toEqual(200);
+    expect(response.body.token).toBeTruthy();
+  });
+  xtest('Should allow a user to create a variable with a valid token', async () => {
+    expect(true).toBe(false);
+  });
+  xtest('Should return a 401 when a user makes a request without a token', async () => {
+    expect(true).toBe(false);
   });
 });
