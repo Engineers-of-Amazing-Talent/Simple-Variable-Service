@@ -55,9 +55,18 @@ export async function handleAuthRequest(request: Request, response: Response, ne
   try {
     if (!request.headers.authorization) {
       next({ message: 'Unauthenticated', status: 401 });
+      return;
     }
     const token = request.headers.authorization?.split(' ')[1];
-
+    if (token) {
+      const validUser = await authenticateToken(token);
+      if (validUser) {
+        request.user = validUser;
+        next();
+      } else {
+        next({ message: 'Invalid Credentials', status: 401 });
+      }
+    }
   } catch(e) {
     next({ message: 'Authentication Error', status: 500 });
   }

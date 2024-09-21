@@ -86,7 +86,7 @@ Description: Create a single new Variable resource.
 
 ```json
 {
-    "type": "STRING" | "INTEGER" | "FLOAT" | "BOOLEAN" | "LIST",
+    "type": "STRING | INTEGER | FLOAT | BOOLEAN | LIST",
     "key": "My Key",
     "value": "My Value"
 }

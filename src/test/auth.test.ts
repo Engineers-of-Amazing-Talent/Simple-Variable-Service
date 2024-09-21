@@ -5,19 +5,24 @@ import repository, {
   VariableInstance,
 } from '../model';
 import jwt from 'jsonwebtoken';
-import { UserInstance, authenticateToken, authorizeUser, authRouter } from '../auth';
+import {
+  UserInstance,
+  authenticateToken,
+  authorizeUser,
+  authRouter,
+  handleAuthRequest
+} from '../auth';
 import supertest from 'supertest';
 import testApp from './util/testApp';
 import { useCollection, errorHandler, variableRouter, listItemRouter } from '../router';
-
 
 const SECRET = process.env.AUTH_SECRET || 'svsdeveloper';
 
 beforeAll(() => {
   testApp.use('/auth', authRouter);
   testApp.use(useCollection);
-  testApp.use('/variable', variableRouter);
-  testApp.use('/listItem', listItemRouter);
+  testApp.use('/variable', handleAuthRequest, variableRouter);
+  testApp.use('/listItem', handleAuthRequest, listItemRouter);
   testApp.use(errorHandler);
 });
 
@@ -167,10 +172,21 @@ describe('Auth router routes and capabilities', () => {
     expect(response.status).toEqual(200);
     expect(response.body.token).toBeTruthy();
   });
-  xtest('Should allow a user to create a variable with a valid token', async () => {
-    expect(true).toBe(false);
+  test('Should allow a user to create a variable with a valid token', async () => {
+    const request = supertest(testApp);
+    const base64Credentials = Buffer.from(`test@test.com:testpassword`).toString('base64');
+    const tokenResponse = await request.post('/auth/token').set('Authorization', `Basic ${base64Credentials}`);
+    const { token } = tokenResponse.body;
+
+    const resourceResponse = await request.post('/variable')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ type: 'STRING', key: 'test_resource', value: 'test_value' });
+    expect(resourceResponse.status).toEqual(201);
   });
-  xtest('Should return a 401 when a user makes a request without a token', async () => {
-    expect(true).toBe(false);
+  test('Should return a 401 when a user makes a request without a token', async () => {
+    const request = supertest(testApp);
+    const response = await request.post('/variable')
+      .send({ type: 'STRING', key: 'test_resource', value: 'test_value' });  
+    expect(response.status).toEqual(401);
   });
 });
