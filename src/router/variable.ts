@@ -1,5 +1,6 @@
 import express, { Router, Request, Response, NextFunction} from 'express';
 import { validateRequestBody } from './middleware/validateRequestBody';
+import { createPermission } from './middleware/createPermission';
 
 const router: Router = express.Router();
 router.use(express.json());
@@ -37,6 +38,9 @@ async function createVariable(request: Request, response: Response, next: NextFu
         key: request.body.key,
         value: request.body.value
       });
+      if (request.profile) {
+        await createPermission(request.profile.id, query.record.id, 'OWNER');
+      }
       response.status(201).json({ resourceId: query.record.id });
     } else {
       next({ message: 'No Collection interface' });

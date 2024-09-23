@@ -3,6 +3,7 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import repository from '../model';
 import { UserInstance } from './userSchema';
+
 const SECRET: string = process.env.AUTH_SECRET || 'svsdeveloper';
 
 export type TokenPayload = {
