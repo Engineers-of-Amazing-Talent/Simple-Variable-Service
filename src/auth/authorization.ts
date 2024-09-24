@@ -57,3 +57,14 @@ export async function handleAuthorization(request: Request, response: Response, 
     next({ message: `Missing Authorization for ${capability}`, status: 403 });
   }
 }
+
+export async function authorizeListItem(request: Request, response: Response, next: NextFunction) {
+  let { profile, capability } = request;
+  let { listId } = request.body;
+  if (profile && listId && capability) {
+    let isAuthorized = await authorizeUser(profile, listId, capability);
+    isAuthorized === true ? next() : next({ message: `Missing Authorization for ${capability}`, status: 403 });
+  } else {
+    next({ message: `Missing Authorization for ${capability}`, status: 403 });
+  }
+}

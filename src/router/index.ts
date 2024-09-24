@@ -6,3 +6,4 @@ export * from './middleware/validateRequestBody';
 export * from './middleware/createPermission';
 export * from './middleware/handleUserProfile';
 export { default as v1Router } from './v1';
+export { default as v2Router } from './v2';

@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from 'express';
 import repository from './model';
-import { v1Router } from './router';
+import { v1Router, v2Router } from './router';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -16,6 +16,7 @@ const {
 } = process.env;
 
 app.use('/api/v1', v1Router);
+app.use('/api/v2', v2Router);
 app.get('/status', (request: Request, response: Response) => {
   response.json({ status: 'OKAY' });
 });

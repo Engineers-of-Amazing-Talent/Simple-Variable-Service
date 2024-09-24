@@ -12,16 +12,15 @@ import {
   handleAuthRequest,
   handleCapability,
   handleAuthorization,
+  authorizeListItem
 } from '../auth';
 import supertest from 'supertest';
 import testApp from './util/testApp';
-import {
-  useCollection,
-  errorHandler,
-  variableRouter,
-  listItemRouter,
-  handleUserProfile
-} from '../router';
+import { useCollection } from '../router/middleware/useCollection';
+import { handleUserProfile } from '../router/middleware/handleUserProfile';
+import { errorHandler } from '../router/middleware/errorHandler';
+import variableRouter from '../router/variable';
+import listItemRouter from '../router/listItem';
 
 beforeAll(() => {
   testApp.use('/auth', authRouter);
@@ -31,9 +30,17 @@ beforeAll(() => {
     handleAuthRequest,
     handleUserProfile,
     variableRouter);
+  listItemRouter.param('resourceId', handleAuthorization);
   testApp.use('/listItem',
     handleAuthRequest,
     handleUserProfile,
+    (req, res, next) => {
+      if (req.method === 'POST') {
+        authorizeListItem(req, res, next);
+      } else {
+        next();
+      }
+    },
     listItemRouter);
   testApp.use(errorHandler);
 });
@@ -254,5 +261,63 @@ describe('Auth router routes and capabilities', () => {
     const getVariable = await request.get(`/variable/${createVariable.body.resourceId}`).set('Authorization', `Bearer ${createUser.body.token}`);
     expect(getVariable.status).toEqual(200);
     expect(getVariable.body.data).toEqual('test string value');
+  });
+  test('Should allow users with OWNER capability to modify a list', async () => {
+    const request = supertest(testApp);
+
+    const createUser = await request.post('/auth/user').send({
+      email: 'test_user@test.com',
+      password: 'test_password'
+    });
+    const token = createUser.body.token;
+
+    const createList = await request.post('/variable')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        type: 'LIST',
+        key: 'test_list'
+      });
+    const createString = await request.post('/variable')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        type: 'STRING',
+        key: 'TEST_KEY',
+        value: 'TEST_VALUE'
+      });
+    const createListItem = await request.post('/listItem')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        resourceId: createString.body.resourceId,
+        listId: createList.body.resourceId
+      });
+    expect(createListItem.status).toEqual(201);
+  });
+  test('Should return a 403 on requests that make list items on resources that lacks permissions', async () => {
+    const request = supertest(testApp);
+    const Variable = repository.getModel<VariableInstance>('Variable');
+    const list = await Variable.create({
+      type: 'LIST',
+      key: 'NOT_PERMITTED',
+    });
+
+    const createUser = await request.post('/auth/user')
+      .send({
+        email: 'test@test.com',
+        password: 'password'
+      });
+    const createVariable = await request.post('/variable')
+      .set('Authorization', `Bearer ${createUser.body.token}`)
+      .send({
+        type: 'STRING',
+        key: 'STRING_KEY',
+        value: 'string_value'
+      });
+    const createListItem = await request.post('/listItem')
+      .set('Authorization', `Bearer ${createUser.body.token}`)
+      .send({
+        resourceId: createVariable.body.resourceId,
+        listId: list.id
+      });
+    expect(createListItem.status).toEqual(403);
   });
 });
