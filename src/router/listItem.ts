@@ -1,4 +1,5 @@
 import express, { Router, Request, Response, NextFunction } from 'express';
+import { validateListItem } from './middleware/validateListItem';
 
 const router: Router = express.Router();
 router.use(express.json());
@@ -21,15 +22,15 @@ async function readListItem(request: Request, response: Response, next: NextFunc
 }
 
 async function writeListItem(request: Request, response: Response, next: NextFunction) {
+  const { resourceId, listId } = request.body;
   try {
-    if (!request.body.resourceId || !request.body.listId) {
+    if (!resourceId || !listId) {
       next({ message: 'Invalid ListItem Properties', status: 400 });
     }
-
     if (request.collection) {
       const query = await request.collection.write('ListItem', {
-        resourceId: request.body.resourceId,
-        listId: request.body.listId,
+        resourceId,
+        listId,
       });
       response.status(201).json({ resourceId: query.record.id });
     } else {
@@ -60,7 +61,7 @@ async function deleteListItem(request: Request, response: Response, next: NextFu
   }
 }
 
-router.post('/', writeListItem);
+router.post('/', validateListItem, writeListItem);
 router.get('/:resourceId', readListItem);
 router.delete('/:resourceId', deleteListItem);
 
