@@ -3,12 +3,12 @@ import crypto from 'node:crypto';
 import { Schema } from './Repository';
 
 export interface AccessKeyAttributes {
+  id?: string,
   hash: string;
-  key: string;
   resourceId: string;
 }
 
-export interface AccesskeyCreationAttributes extends Optional<AccessKeyAttributes, 'hash'> { }
+export interface AccesskeyCreationAttributes extends Optional<AccessKeyAttributes, 'hash' | 'resourceId'> { }
 export interface AccessKeyInstance extends Model<AccessKeyAttributes, AccessKeyAttributes>, AccessKeyAttributes { }
 
 export const generateHash = async (instance: AccessKeyInstance) => {
@@ -32,8 +32,13 @@ export const accessKeySchema: Schema = {
       allowNull: false
     },
     resourceId: {
-      type: DataTypes.UUIDV4,
+      type: DataTypes.UUID,
       allowNull: false
+    }
+  },
+  options: {
+    hooks: {
+      beforeCreate: generateHash
     }
   }
 }

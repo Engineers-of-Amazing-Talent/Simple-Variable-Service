@@ -25,11 +25,13 @@ import listItemRouter from '../router/listItem';
 beforeAll(() => {
   testApp.use('/auth', authRouter);
   testApp.use(handleCapability, useCollection);
+
   variableRouter.param('resourceId', handleAuthorization);
   testApp.use('/variable',
     handleAuthRequest,
     handleUserProfile,
     variableRouter);
+
   listItemRouter.param('resourceId', handleAuthorization);
   testApp.use('/listItem',
     handleAuthRequest,

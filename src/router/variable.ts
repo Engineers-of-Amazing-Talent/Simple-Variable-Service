@@ -6,7 +6,7 @@ const router: Router = express.Router();
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
-async function readVariables(request: Request, response: Response, next: NextFunction) {
+async function readVariable(request: Request, response: Response, next: NextFunction) {
   try {
     if (request.collection) {
       const { resourceId } = request.params;
@@ -85,7 +85,7 @@ async function deleteVariable(request: Request, response: Response, next: NextFu
 }
 
 router.post('/', validateRequestBody, createVariable);
-router.get('/:resourceId', readVariables);
+router.get('/:resourceId', readVariable);
 router.patch('/:resourceId', validateRequestBody, updateVariable);
 router.delete('/:resourceId', deleteVariable);
 
