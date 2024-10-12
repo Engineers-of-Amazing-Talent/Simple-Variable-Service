@@ -1,6 +1,7 @@
 # Simple Variable Service
 
 ![CI](https://github.com/Engineers-of-Amazing-Talent/Simple-Variable-Service/actions/workflows/ci.yaml/badge.svg)
+![Deployment Status](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsimple-variable-service.onrender.com%2Fstatus&query=status)
 
 This service offers users easy remote access to JSON like data that can be accessed via a simple web request. Users can create simple values like strings, integers, floats, booleans, and lists.  An authenticated user is able to freely Create, Read, Update, and Remove as many variables as they please.  If a user wants to be able to share their variables they can either select specific users to have specific capabilities towards one or more variables, or make their variable publicly accessible to anyone.
 
@@ -79,14 +80,14 @@ Authorization: Bearer YOUR_ACCESS_KEY
 
 #### 1. Create a Variable
 
-Endpoint: `POST /variable`  
+Endpoint: `POST api/v1/variable`  
 Description: Create a single new Variable resource.
 
 ##### Request
 
 ```json
 {
-    "type": "STRING",
+    "type": "STRING | INTEGER | FLOAT | BOOLEAN | LIST",
     "key": "My Key",
     "value": "My Value"
 }

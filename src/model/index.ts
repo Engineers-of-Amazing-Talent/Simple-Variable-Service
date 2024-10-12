@@ -1,9 +1,11 @@
-// export * from './accessKey';
 import { Repository } from './Repository';
+import { accessKeySchema } from './accessKey';
 import { permissionSchema } from './permissions';
 import { userProfileSchema } from './userProfile';
 import { variableSchema, VariableInstance, VariableCreationAttributes } from './variable';
 import { listItemSchema, ListItemInstance, ListItemCreationAttributes } from './listItem';
+// authentication model;
+import { userSchema } from '../auth';
 
 export type ModelInstance = VariableInstance | ListItemInstance;
 export type ModelAttributes = VariableCreationAttributes | ListItemCreationAttributes;
@@ -11,6 +13,8 @@ export * from './Repository';
 export * from './variable';
 export * from './listItem';
 export * from './permissions';
+export * from './userProfile';
+export * from './accessKey';
 
 export function isVariableInstance(instance: ModelInstance): instance is VariableInstance {
   return (instance as VariableInstance).type !== undefined && (instance as VariableInstance).key !== undefined;
@@ -24,8 +28,17 @@ const repository = new Repository();
 repository.addSchema(variableSchema);
 repository.addSchema(listItemSchema);
 repository.addSchema(permissionSchema);
+repository.addSchema(accessKeySchema);
 repository.addSchema(userProfileSchema);
-repository.addJoinAssociation(variableSchema, variableSchema, {
+repository.addSchema(userSchema);
+
+repository.addAssociation(userProfileSchema, permissionSchema, {
+  type: 'one-to-many',
+  as: 'permissions',
+  foreignKey: 'userProfileId'
+});
+repository.addAssociation(variableSchema, variableSchema, {
+  type: 'many-to-many',
   through: listItemSchema,
   as: 'ListVariable',
   foreignKey: 'listId',

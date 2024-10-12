@@ -1,8 +1,9 @@
 import variableRouter from '../router/variable';
 import listItemRouter from '../router/listItem';
+import { useCollection } from '../router/middleware/useCollection';
+import { errorHandler } from '../router/middleware/errorHandler';
 import supertest from 'supertest';
 import testApp from './util/testApp';
-import { useCollection, errorHandler } from '../router';
 import repository, { VariableInstance, ListItemInstance  } from '../model';
 
 let stringVariable: VariableInstance | null = null;

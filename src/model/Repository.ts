@@ -1,28 +1,34 @@
-import { Sequelize, ModelAttributes, Model, ModelStatic } from 'sequelize';
-import { isVariableInstance, ModelInstance, VariableInstance } from '.';
+import { Sequelize, ModelAttributes, Options, Model, ModelStatic } from 'sequelize';
+import { isVariableInstance, ModelInstance, VariableInstance } from './';
 
 export type Schema = {
   name: string,
-  attributes: ModelAttributes
+  attributes: ModelAttributes,
+  options?: Options
 }
 
-export interface OneWayParams {
-  modelName: string,
+export interface BaseAssociationParams {
+  type: 'one-to-many' | 'many-to-many';
   as: string;
   foreignKey: string;
 }
+export interface BaseAssociation extends BaseAssociationParams {
+  to: Schema;
+  from: Schema;
+}
 
-export interface AssociationParams {
-  through: Schema;
+export interface createAssociationParams {
+  modelName: string;
   as: string;
-  foreignKey: string,
-  otherKey: string,
+  foreignKey: string;
+}
+export interface JoinParams {
+  otherKey: string;
+  through: Schema;
 }
 
-export interface Association extends AssociationParams {
-  to: Schema,
-  from: Schema,
-}
+export interface JoinAssociationParams extends BaseAssociationParams, JoinParams { }
+export interface JoinAssociation extends BaseAssociation, JoinParams { }
 
 export type ConnectionParams = {
   url: string;
@@ -37,7 +43,7 @@ export type LinkedQueryParams = {
 export class Repository {
   private db: Sequelize | null;
   public schemas: Schema[];
-  public associations: Association[];
+  public associations: Array<BaseAssociation | JoinAssociation>;
 
   constructor() {
     this.db = null;
@@ -54,9 +60,13 @@ export class Repository {
         }
       });
       this.associations.forEach(association => {
-        this.createManyToMany(association);
+        if (association.type === 'many-to-many') {
+          this.createManyToMany(association as JoinAssociation);
+        } else {
+          this.createOneToMany(association as BaseAssociation);
+        }
       });
-    } catch(e) {
+    } catch (e) {
       console.error(e);
       throw new Error('Repository Connection Error');
     }
@@ -101,18 +111,18 @@ export class Repository {
     if (!this.db) {
       throw new Error('Create Model Error: db is not initialized');
     }
-    this.db?.define(modelSchema.name, modelSchema.attributes);
+    this.db?.define(modelSchema.name, modelSchema.attributes, modelSchema.options);
   }
 
-  createOneToMany(to: OneWayParams, from: OneWayParams) {
-    const To = this.getModel(to.modelName);
-    const From = this.getModel(from.modelName);
-
-    To.hasMany(From, { as : to.as, foreignKey: to.foreignKey });
-    From.belongsTo(To, { as: from.as, foreignKey: from.foreignKey });
+  createOneToMany(association: BaseAssociation) {
+    const To = this.getModel(association.to.name);
+    const From = this.getModel(association.from.name);
+    
+    To.hasMany(From, { as: association.as, foreignKey: association.foreignKey });
+    From.belongsTo(To, { as: association.as, foreignKey: association.foreignKey });
   }
 
-  createManyToMany(association: Association) {
+  createManyToMany(association: JoinAssociation) {
     const modelTo = this.getModel(association.to.name);
     const modelFrom = this.getModel(association.from.name);
     const modelThrough = this.getModel(association.through.name);
@@ -138,7 +148,7 @@ export class Repository {
     return model;
   }
 
-  addJoinAssociation(schemaFrom: Schema, schemaTo: Schema, associationParams: AssociationParams): void {
+  addAssociation(schemaFrom: Schema, schemaTo: Schema, associationParams: BaseAssociationParams | JoinAssociationParams): void {
     this.associations.push({
       to: schemaTo,
       from: schemaFrom,
@@ -164,7 +174,6 @@ export class Repository {
     if (!parent) {
       return null;
     }
-    // Recursive case: Fetch linked variables of the linked variables
     if (parent && isVariableInstance(parent)) {
       if (parent.ListVariable) {
         parent.ListVariable = (

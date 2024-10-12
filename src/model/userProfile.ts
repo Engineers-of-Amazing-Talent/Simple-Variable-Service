@@ -2,11 +2,13 @@ import { DataTypes, Optional, Model } from "sequelize";
 import { Schema } from './Repository';
 
 export interface UserProfileAttributes {
+  id?: string;
   externalId: string;
 }
 export interface UserProfileCreationAttributes extends Optional<UserProfileAttributes, 'externalId'>{}
 export interface UserProfileInstance extends Model<UserProfileAttributes, UserProfileCreationAttributes>, UserProfileAttributes{
-  id: string
+  id: string;
+  externalId: string;
 }
 
 export const userProfileSchema: Schema = {

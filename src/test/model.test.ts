@@ -1,7 +1,10 @@
-import { VariableInstance } from '../model/variable';
-import { ListItemInstance } from '../model/listItem';
-import { UserProfileInstance } from '../model/userProfile';
-import { PermissionInstance } from '../model';
+import {
+  VariableInstance,
+  ListItemInstance,
+  UserProfileInstance,
+  PermissionInstance,
+  AccessKeyInstance,
+ } from '../model';
 import repository, { isVariableInstance } from '../model';
 
 afterEach(async () => {
@@ -335,4 +338,24 @@ describe('Permissions and Access', () => {
       })
     expect(permission.capability).toEqual('READ');
   });
+  test('Should create an Access Key for a Variable', async () => {
+    const Variable = repository.getModel<VariableInstance>('Variable');
+    const AccessKey = repository.getModel<AccessKeyInstance>('AccessKey');
+
+    const variable = await Variable.create({
+      type: 'STRING',
+      key: 'test_key',
+      value: 'test_value'
+    });
+
+    const accessKey = await AccessKey.create({
+      hash: variable.key,
+      resourceId: variable.id
+    });
+
+    expect(accessKey.resourceId).toEqual(variable.id);
+    expect(accessKey.id).toBeTruthy();
+    expect(accessKey.hash).toBeTruthy();
+    expect(accessKey.hash).not.toEqual(variable.key);
+  })
 });
